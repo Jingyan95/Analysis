@@ -70,8 +70,20 @@ float getTopmass(lepton_candidate *a, jet_candidate *b, float MET, float phi){
     float B=-4*x*plz;
     float C=4*El*El*MET*MET-x*x;
     float delta=B*B-4*A*C; //quadratic formula
-    if(delta>0){
-       pz=(-B-sqrt(delta))/(2*A); //pick the smaller solution
+    if(delta<0){
+        pz=-B/(2*A);
+        n.SetPxPyPzE(MET*sin(phi),MET*cos(phi),pz,sqrt(MET*MET+pz*pz));
+        Topmass=(n+l+bjet).M();
+    }
+    else{
+       float sol1=(-B-sqrt(delta))/(2*A);
+       float sol2=(-B+sqrt(delta))/(2*A);
+       if(abs(sol1-plz)<abs(sol2-plz)){
+       pz=sol1; //pick the one closest to lepton pz
+        }
+       else{
+       pz=sol2;
+       }
        n.SetPxPyPzE(MET*sin(phi),MET*cos(phi),pz,sqrt(MET*MET+pz*pz));
        Topmass=(n+l+bjet).M();
     }
@@ -558,28 +570,28 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
 
     if ((*selectedLeptons)[0]->lep_ + (*selectedLeptons)[1]->lep_ + (*selectedLeptons)[2]->lep_ == 3) ch = 0;//eee channel
     if ((*selectedLeptons)[0]->lep_ + (*selectedLeptons)[1]->lep_ + (*selectedLeptons)[2]->lep_ == 12) {
-        ch = 1;//emul channal
+        ch = 1;//emul channel
         if ((*selectedLeptons)[0]->charge_ + (*selectedLeptons)[1]->charge_ + (*selectedLeptons)[2]->charge_ ==1){
-            ch1 = 0; //eemu subchannal with ++- charge
+            ch1 = 0; //eemu subchannel with ++- charge
         }
         else{
-            ch1 = 1; //eemu subchannal with +-- charge
+            ch1 = 1; //eemu subchannel with +-- charge
         }
     }
     if ((*selectedLeptons)[0]->lep_ + (*selectedLeptons)[1]->lep_ + (*selectedLeptons)[2]->lep_ == 21) {
         ch = 1;
         if ((*selectedLeptons)[0]->charge_ + (*selectedLeptons)[1]->charge_ + (*selectedLeptons)[2]->charge_ ==1){
-            ch1 = 2; //emumu subchannal with ++- charge
+            ch1 = 2; //emumu subchannel with ++- charge
         }
         else{
-            ch1 = 3; //emumu subchannal with +-- charge
+            ch1 = 3; //emumu subchannel with +-- charge
         }
       }
-    if ((*selectedLeptons)[0]->lep_ + (*selectedLeptons)[1]->lep_ + (*selectedLeptons)[2]->lep_ == 30) ch = 2; //mumumu channal
+    if ((*selectedLeptons)[0]->lep_ + (*selectedLeptons)[1]->lep_ + (*selectedLeptons)[2]->lep_ == 30) ch = 2; //mumumu channel
 
     if(ch ==0 && !triggerPassEE) continue;
     //if(ch ==1 && !triggerPassEMu) continue;
-    // For now we use ee+emu+mumu trigger for emul channal
+    // For now we use ee+emu+mumu trigger for emul channel
     if(ch ==1){
       sort(selectedLeptons_copy->begin(), selectedLeptons_copy->end(), CompareFlavourLep);
       if(ch1==0){
@@ -986,7 +998,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
     Hists[ch][5][31]->Fill(((*selectedLeptons_copy)[0]->p4_ + (*selectedLeptons_copy)[1]->p4_).M(),weight_lep);
     }
 
-    if(nbjet==1 && MET_FinalCollection_Pt<20 && selectedJets->size()==1){
+    if(nbjet==1 && MET_FinalCollection_Pt<20 && selectedJets->size()>0){
     Hists[ch][6][0]->Fill((*selectedLeptons)[0]->pt_,weight_lepB);
     Hists[ch][6][1]->Fill((*selectedLeptons)[0]->eta_,weight_lepB);
     Hists[ch][6][2]->Fill((*selectedLeptons)[0]->phi_,weight_lepB);
@@ -1091,7 +1103,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
     Hists[ch][8][31]->Fill(((*selectedLeptons_copy)[0]->p4_ + (*selectedLeptons_copy)[1]->p4_).M(),weight_lepB);
     }
 
-    if(nbjet==1 && MET_FinalCollection_Pt>20 && selectedJets->size()==1){
+    if(nbjet==1 && MET_FinalCollection_Pt>20 && selectedJets->size()>0){
     Hists[ch][9][0]->Fill((*selectedLeptons)[0]->pt_,weight_lepB);
     Hists[ch][9][1]->Fill((*selectedLeptons)[0]->eta_,weight_lepB);
     Hists[ch][9][2]->Fill((*selectedLeptons)[0]->phi_,weight_lepB);
