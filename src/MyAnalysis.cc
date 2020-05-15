@@ -1217,7 +1217,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
 
     nAccept++;
   } //end of event loop
-  cout<<"from "<<ntr<<" evnets, "<<nAccept<<" events are accepted"<<endl;
+  cout<<endl<<"from "<<ntr<<" events, "<<nAccept<<" events are accepted"<<endl;
 
   for (int i=0;i<channels.size();++i){
     for (int k=0;k<regions.size();++k){
@@ -1226,12 +1226,26 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
       }
     }
   }
+  for (int i=0;i<channels.size();++i){
+    for (int k=0;k<regions.size();++k){
+      for (int l=0;l<vars.size();++l){
+        delete Hists[i][k][l];
+      }
+    }
+  }
 
-   h2_BTaggingEff_Denom_b   ->Write("",TObject::kOverwrite); 
-   h2_BTaggingEff_Denom_c   ->Write("",TObject::kOverwrite); 
-   h2_BTaggingEff_Denom_udsg->Write("",TObject::kOverwrite); 
-   h2_BTaggingEff_Num_b     ->Write("",TObject::kOverwrite); 
-   h2_BTaggingEff_Num_c     ->Write("",TObject::kOverwrite); 
-   h2_BTaggingEff_Num_udsg  ->Write("",TObject::kOverwrite); 
+   h2_BTaggingEff_Denom_b   ->Write("",TObject::kOverwrite);
+   h2_BTaggingEff_Denom_c   ->Write("",TObject::kOverwrite);
+   h2_BTaggingEff_Denom_udsg->Write("",TObject::kOverwrite);
+   h2_BTaggingEff_Num_b     ->Write("",TObject::kOverwrite);
+   h2_BTaggingEff_Num_c     ->Write("",TObject::kOverwrite);
+   h2_BTaggingEff_Num_udsg  ->Write("",TObject::kOverwrite);
+
+   delete h2_BTaggingEff_Denom_b;
+   delete h2_BTaggingEff_Denom_c;
+   delete h2_BTaggingEff_Denom_udsg;
+   delete h2_BTaggingEff_Num_b;
+   delete h2_BTaggingEff_Num_c;
+   delete h2_BTaggingEff_Num_udsg;
   file_out.Close() ;
 }
