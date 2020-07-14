@@ -151,6 +151,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
 
    Double_t ptBins[11] = {30., 40., 60., 80., 100., 150., 200., 300., 400., 500., 1000.};
    Double_t etaBins [4]= {0., 0.6, 1.2, 2.4};
+   TH2D *h2_BTaggingEff_Denom_all    = new TH2D("h2_BTaggingEff_Denom_all"   , ";p_{T} [GeV];#eta", 10 , ptBins, 3 , etaBins);
    TH2D *h2_BTaggingEff_Denom_b    = new TH2D("h2_BTaggingEff_Denom_b"   , ";p_{T} [GeV];#eta", 10 , ptBins, 3 , etaBins);
    TH2D *h2_BTaggingEff_Denom_c    = new TH2D("h2_BTaggingEff_Denom_c"   , ";p_{T} [GeV];#eta", 10 , ptBins, 3 , etaBins);
    TH2D *h2_BTaggingEff_Denom_udsg = new TH2D("h2_BTaggingEff_Denom_udsg", ";p_{T} [GeV];#eta", 10 , ptBins, 3 , etaBins);
@@ -165,7 +166,19 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
    TH2F *h2_jetvsMET = new TH2F("h2_jetvsMET","jet vs MET;jet;MET [GeV]",8,-1,7,10,0,200);
    TH2F *h2_bjetvsMET = new TH2F("h2_bjetvsMET","bjet vs MET;bjet;MET [GeV]",8,-1,7,10,0,200);
    
-   TH2F *h2_FFvsRegion = new TH2F("h2_FFvsRegion","FF vs Region;FF region;Selection criteria",6,0,6,8,0,8);
+   TH2F *h2_FFvsRegion_eee = new TH2F("h2_FFvsRegion_eee","FF vs Region;FF region;Selection criteria",6,0,6,8,0,8);
+   TH2F *h2_FFvsRegion_emul = new TH2F("h2_FFvsRegion_emul","FF vs Region;FF region;Selection criteria",6,0,6,8,0,8);
+   TH2F *h2_FFvsRegion_mumumu = new TH2F("h2_FFvsRegion_mumumu","FF vs Region;FF region;Selection criteria",6,0,6,8,0,8);
+    
+   TH2F *h2_RegionvsBtag_Denom_b = new TH2F("h2_RegionvsBtag_Denom_b","Btag vs Region;Btag;Selection criteria",6,0,6,8,0,8);
+   TH2F *h2_RegionvsBtag_Denom_c = new TH2F("h2_RegionvsBtag_Denom_c","Btag vs Region;Btag;Selection criteria",6,0,6,8,0,8);
+   TH2F *h2_RegionvsBtag_Denom_udsg = new TH2F("h2_RegionvsBtag_Denom_udsg","Btag vs Region;Btag;Selection criteria",6,0,6,8,0,8);
+   TH2F *h2_RegionvsBtag_Num_b = new TH2F("h2_RegionvsBtag_Num_b","Btag vs Region;Btag;Selection criteria",6,0,6,8,0,8);
+   TH2F *h2_RegionvsBtag_Num_c = new TH2F("h2_RegionvsBtag_Num_c","Btag vs Region;Btag;Selection criteria",6,0,6,8,0,8);
+   TH2F *h2_RegionvsBtag_Num_udsg = new TH2F("h2_RegionvsBtag_Num_udsg","Btag vs Region;Btag;Selection criteria",6,0,6,8,0,8);
+    
+   TH1D *h1_MCb_Denom = new TH1D("h1_MCb_Denom"   , ";Selection criteria;entries", 6, 0, 6);
+   TH1D *h1_MCb_Num = new TH1D("h1_MCb_Num"   , ";Selection criteria;entries", 6, 0, 6);
 
   typedef vector<TH1F*> Dim1;
   typedef vector<Dim1> Dim2;
@@ -230,6 +243,30 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
           }
       }
   }
+
+  std::vector<TString> FF{"MR", "antiMR", "AR"};
+  std::vector<TString> FFvars   {"E2Pt","Mu2Pt","E3Pt","Mu3Pt","EPt","MuPt"};//E2Pt means sub-leading electron when both of the sub-leading and the 3-rd leading leptons are electrons
+  std::vector<TString> FFregions{"lllMetl20", "lllMetg20Jetgeq2B2"};
+  Dim4 HistsFF(FF.size(),Dim3(channels.size(),Dim2(FFregions.size(),Dim1(FFvars.size()))));
+  std::vector<int> FFnbins   {15,15,15,15,15,15};
+  std::vector<float> FFlowEdge  {0,0,0,0,0,0};
+  std::vector<float> FFhighEdge {150,150,150,150,150,150};
+    
+    for (int i=0;i<FF.size();++i){
+        for (int k=0;k<channels.size();++k){
+            for (int l=0;l<FFregions.size();++l){
+                for (int n=0;n<FFvars.size();++n){
+                    name<<FF[i]<<"_"<<channels[k]<<"_"<<FFregions[l]<<"_"<<FFvars[n];
+                    h_test = new TH1F((name.str()).c_str(),(name.str()).c_str(),FFnbins[n],FFlowEdge[n],FFhighEdge[n]);
+                    h_test->StatOverflows(kTRUE);
+                    h_test->Sumw2(kTRUE);
+                    HistsFF[i][k][l][n] = h_test;
+                    name.str("");
+                }
+            }
+        }
+    }
+
 
 
 //Get scale factor and weight histograms
@@ -432,6 +469,16 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
   float mT=173.07;
   float mZ=91.2;
   bool OnZ=false;//Opposite Sign&&Same Flavor (OSSF) pair present in event
+  int anti_index;// index of the anti-selected lepton in the container
+  int anti_flavor;// flavor of the anti-selected lepton: 1 means electron 2 means muons
+  bool EMU;// true means sub-leading and the 3rd-leading lepton have different flavor
+  int nMCb; // number of gen level b jets
+  int nMCc;
+  int nMCudsg;
+  int nMCb0; // number of gen level b jets after 0th jet selection step
+  int nMCb1;
+  int nMCb2;
+  int nMCb3;
 
   if (fname.Contains("TTTo2L2Nu")) ifTopPt=true;
 
@@ -443,7 +490,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
 for (int f=0;f<4;f++){
     //f=0 SR
     //f=1 MR
-    //f=2 antiMR
+    //f=2 Ant-MR
     //f=3 AR
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
 //  for (Long64_t jentry=0; jentry<100;jentry++) {
@@ -610,11 +657,13 @@ for (int f=0;f<4;f++){
   selectedLeptons = new std::vector<lepton_candidate*>();//typlical ordered by pT
   selectedLeptons_copy = new std::vector<lepton_candidate*>();// ordered by [e, mu , bachelor lepton ]
   nTight=0;
+  anti_index=0;
+  anti_flavor=0;
 // electron
     for (int l=0;l<gsf_pt->size();l++){
       elePt = (*gsf_ecalTrkEnergyPostCorr)[l]*sin(2.*atan(exp(-1.*(*gsf_eta)[l]))) ;
-      if(elePt <20 || abs((*gsf_eta)[l]) > 2.4 || (abs((*gsf_sc_eta)[l])> 1.4442 && (abs((*gsf_sc_eta)[l])< 1.566))) continue;
-      if((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]&&f==0) {
+      if(elePt <15 || abs((*gsf_eta)[l]) > 2.4 || (abs((*gsf_sc_eta)[l])> 1.4442 && (abs((*gsf_sc_eta)[l])< 1.566))) continue;
+      if((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]&&elePt>20&f==0) {
       selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
       selectedLeptons_copy->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
       if (data == "mc"){
@@ -628,20 +677,18 @@ for (int f=0;f<4;f++){
           sysUpWeights[1] = sysUpWeights[1] * scale_factor(&sf_Ele_ID_H ,(*gsf_sc_eta)[l],(*gsf_pt)[l],"up");
           sysDownWeights[1] = sysDownWeights[1] * scale_factor(&sf_Ele_ID_H ,(*gsf_sc_eta)[l],(*gsf_pt)[l],"down");
          }
-      }
+      }// we do the following if f>0
       if((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_loose)[l]&&f>0){
-        if(f==3){
-           selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
-           selectedLeptons_copy->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
-           if((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]) nTight++;
-          }
-        if((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]&&f==1){
+        if((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]&&elePt>20){
             selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
             selectedLeptons_copy->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
-        }
-        if (!(*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]&&f==2){
+            nTight++;
+        }// we selection loose leptons only when f = 2 or f =3
+        if (!(*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]&&f>1){
             selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
             selectedLeptons_copy->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
+            (*selectedLeptons)[selectedLeptons->size()-1]->setantilep();
+            anti_flavor=1;// there is a loose electron in the lepton container
            }
         }
     }
@@ -654,8 +701,8 @@ for (int f=0;f<4;f++){
          if ((*mu_mc_index)[l]!=-1 && abs((*mc_pdgId)[(*mu_mc_index)[l]]) == 13) muPtSFRochester = rc.kSpreadMC((*mu_gt_charge)[l], (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l], (*mc_pt)[(*mu_mc_index)[l]],0, 0);
          if ((*mu_mc_index)[l]<0) muPtSFRochester = rc.kSmearMC((*mu_gt_charge)[l], (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l], (*mu_trackerLayersWithMeasurement)[l] , gRandom->Rndm(),0, 0);
       }
-      if(muPtSFRochester * (*mu_gt_pt)[l] <20 || abs((*mu_gt_eta)[l]) > 2.4) continue;
-      if((*mu_isTightMuon)[l] && (*mu_pfIsoDbCorrected04)[l] < 0.15 && f==0){
+      if(muPtSFRochester * (*mu_gt_pt)[l] <15 || abs((*mu_gt_eta)[l]) > 2.4) continue;
+      if((*mu_isTightMuon)[l] && (*mu_pfIsoDbCorrected04)[l] < 0.15 && muPtSFRochester * (*mu_gt_pt)[l] >20 && f==0){
       selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
       selectedLeptons_copy->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
       if (data == "mc" && year == "2016") {
@@ -681,25 +728,41 @@ for (int f=0;f<4;f++){
           sysDownWeights[3] = sysDownWeights[3] * scale_factor(&sf_Mu_ISO_H, (*mu_gt_pt)[l], abs((*mu_gt_eta)[l]),"down");
        }
       }
-      if((*mu_isLooseMuon)[l] && (*mu_pfIsoDbCorrected04)[l] > 0.15&&f>0){
-          if(f==3){
-          selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
-          selectedLeptons_copy->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
-          if((*mu_isTightMuon)[l]) nTight++;
-          }
-          if((*mu_isTightMuon)[l]&&f==1){
+      if((*mu_isLooseMuon)[l] && f>0){
+        if((*mu_isTightMuon)[l] && (*mu_pfIsoDbCorrected04)[l] < 0.15 && muPtSFRochester * (*mu_gt_pt)[l] >20){
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
               selectedLeptons_copy->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
+              nTight++;
           }
-          if (!(*mu_isTightMuon)[l]&&f==2){
+          if (!(*mu_isTightMuon)[l]&&(*mu_pfIsoDbCorrected04)[l] > 0.15&&f>1){
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
               selectedLeptons_copy->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
+              (*selectedLeptons)[selectedLeptons->size()-1]->setantilep();
+              anti_flavor=2; // there is a loose muon in the lepton container
           }
         }
     }
     ARveto=false;
-    if(f==3&&nTight!=2) ARveto=true;
     sort(selectedLeptons->begin(), selectedLeptons->end(), ComparePtLep);
+    if (f==1&&selectedLeptons->size()>2){//in MR, there should be no anti-selected leptons. anti_flavor is used to keep track of lepton flavor (with the help of ch1)
+        if ((*selectedLeptons)[1]->lep_== 1){
+            anti_flavor=1;
+        }
+        else{
+            anti_flavor=2;
+        }
+      }
+    if (f>1&&selectedLeptons->size()>2) {
+    if (nTight!=2||(*selectedLeptons)[0]->isantilep){//in anti-MR and AR we want two tight leptons and one anti-selected. the leading lepton must be tight.
+       ARveto=true;
+       }
+       if ((*selectedLeptons)[1]->isantilep){
+           anti_index=1;
+       }
+       else{
+           anti_index=2;
+       }
+    }
 // trilepton selection
 //cout<<ev_event<<"  "<<triggerPass<<"  "<<metFilterPass<<"  "<<selectedLeptons->size()<<endl;
     if(selectedLeptons->size()!=3 ||
@@ -806,17 +869,25 @@ for (int f=0;f<4;f++){
     selectedJets = new std::vector<jet_candidate*>();
     selectedJets_copy = new std::vector<jet_candidate*>();
     bool jetlepfail;
+    nMCb0=0;
+    nMCb1=0;
+    nMCb2=0;
+    nMCb3=0;
     for (int l=0;l<jet_pt->size();l++){
+       if (data == "mc" && abs((*jet_partonFlavour)[l]) == 5) nMCb0++;
       if(data == "mc" && ((*jet_Smeared_pt)[l] <30 || abs((*jet_eta)[l]) > 2.4)) continue;
       if(data == "data" && ((*jet_pt)[l] <30 || abs((*jet_eta)[l]) > 2.4)) continue;
+       if (data == "mc" && abs((*jet_partonFlavour)[l]) == 5) nMCb1++;
       if(year == "2016" && !(*jet_isJetIDTightLepVeto_2016)[l]) continue;
       if(year == "2017" && !(*jet_isJetIDLepVeto_2017)[l]) continue;
       if(year == "2018" && !(*jet_isJetIDLepVeto_2018)[l]) continue;
+       if (data == "mc" && abs((*jet_partonFlavour)[l]) == 5) nMCb2++;
       jetlepfail = false;
       for (int i=0;i<selectedLeptons->size();i++){
         if(deltaR((*selectedLeptons)[i]->eta_,(*selectedLeptons)[i]->phi_,(*jet_eta)[l],(*jet_phi)[l]) < 0.4 ) jetlepfail=true;
       }
-      if(jetlepfail) continue; 
+      if(jetlepfail) continue;
+        if (data == "mc" && abs((*jet_partonFlavour)[l]) == 5) nMCb3++;
       if(data == "mc"){
         selectedJets->push_back(new jet_candidate((*jet_Smeared_pt)[l],(*jet_eta)[l],(*jet_phi)[l],(*jet_energy)[l],(*jet_DeepCSV)[l], year,(*jet_partonFlavour)[l]));
         selectedJets_copy->push_back(new jet_candidate((*jet_Smeared_pt)[l],(*jet_eta)[l],(*jet_phi)[l],(*jet_energy)[l],(*jet_DeepCSV)[l], year,(*jet_partonFlavour)[l]));
@@ -830,10 +901,15 @@ for (int f=0;f<4;f++){
     sort(selectedJets->begin(), selectedJets->end(), ComparePtJet);
     sort(selectedJets_copy->begin(), selectedJets_copy->end(), CompareBtagJet);// Orderd by b_tagging score
     nbjet=0;
+    nMCb=0;
+    nMCc=0;
+    nMCudsg=0;
     for (int l=0;l<selectedJets->size();l++){
       if((*selectedJets)[l]->btag_) nbjet++;
       if(data == "data") continue;
+        h2_BTaggingEff_Denom_all->Fill((*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_));
       if( abs((*selectedJets)[l]->flavor_) == 5){
+        nMCb++;
         h2_BTaggingEff_Denom_b->Fill((*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_));
         if( (*selectedJets)[l]->btag_ ) {
           h2_BTaggingEff_Num_b->Fill((*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_));
@@ -860,6 +936,7 @@ for (int f=0;f<4;f++){
         }  
       }
       if( abs((*selectedJets)[l]->flavor_) == 4){
+        nMCc++;
         h2_BTaggingEff_Denom_c->Fill((*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_));
         if( (*selectedJets)[l]->btag_) {
           h2_BTaggingEff_Num_c->Fill((*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_));
@@ -886,6 +963,7 @@ for (int f=0;f<4;f++){
         }
       }
       if( abs((*selectedJets)[l]->flavor_) != 4 && abs((*selectedJets)[l]->flavor_) != 5){
+        nMCudsg++;
         h2_BTaggingEff_Denom_udsg->Fill((*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_));
         if( (*selectedJets)[l]->btag_) {
           h2_BTaggingEff_Num_udsg->Fill((*selectedJets)[l]->pt_, abs((*selectedJets)[l]->eta_));
@@ -1086,34 +1164,371 @@ for (int f=0;f<4;f++){
     weight_lepC = weight_lep;
     if (ch==1&&compete) weight_lepC = weight_lepB;
       
-    if(ch==1){
-       h2_FFvsRegion->Fill(f+1,1,weight_lep);
+    if(ch==0){
+       h2_FFvsRegion_eee->Fill(f+1,1,weight_lep);
        if(OnZ){
-        h2_FFvsRegion->Fill(f+1,2,weight_lep);
+        h2_FFvsRegion_eee->Fill(f+1,2,weight_lep);
         }
        else{
-        h2_FFvsRegion->Fill(f+1,3,weight_lep);
+        h2_FFvsRegion_eee->Fill(f+1,3,weight_lep);
            if(nbjet==0){
-              h2_FFvsRegion->Fill(f+1,4,weight_lepB);
+              h2_FFvsRegion_eee->Fill(f+1,4,weight_lepB);
            }
            if(nbjet==1){
-               h2_FFvsRegion->Fill(f+1,5,weight_lepB);
+               h2_FFvsRegion_eee->Fill(f+1,5,weight_lepB);
            }
            if(nbjet>1){
-               h2_FFvsRegion->Fill(f+1,6,weight_lepB);
+               h2_FFvsRegion_eee->Fill(f+1,6,weight_lepB);
            }
        }
       }
       
+      if(ch==1){
+          h2_FFvsRegion_emul->Fill(f+1,1,weight_lep);
+          if(OnZ){
+              h2_FFvsRegion_emul->Fill(f+1,2,weight_lep);
+          }
+          else{
+              h2_FFvsRegion_emul->Fill(f+1,3,weight_lep);
+              if(nbjet==0){
+                  h2_FFvsRegion_emul->Fill(f+1,4,weight_lepB);
+              }
+              if(nbjet==1){
+                  h2_FFvsRegion_emul->Fill(f+1,5,weight_lepB);
+              }
+              if(nbjet>1){
+                  h2_FFvsRegion_emul->Fill(f+1,6,weight_lepB);
+              }
+          }
+      }
+      
+      if(ch==2){
+          h2_FFvsRegion_mumumu->Fill(f+1,1,weight_lep);
+          if(OnZ){
+              h2_FFvsRegion_mumumu->Fill(f+1,2,weight_lep);
+          }
+          else{
+              h2_FFvsRegion_mumumu->Fill(f+1,3,weight_lep);
+              if(nbjet==0){
+                  h2_FFvsRegion_mumumu->Fill(f+1,4,weight_lepB);
+              }
+              if(nbjet==1){
+                  h2_FFvsRegion_mumumu->Fill(f+1,5,weight_lepB);
+              }
+              if(nbjet>1){
+                  h2_FFvsRegion_mumumu->Fill(f+1,6,weight_lepB);
+              }
+          }
+      }
+      
+      EMU=false;
+      if(ch == 1 && (*selectedLeptons)[0]->lep_== 1 && ch1 < 2) EMU=true;
+      if(ch == 1 && (*selectedLeptons)[0]->lep_== 10 && ch1 > 1) EMU=true;
+      if (!OnZ&&f>0){// Fill the histograms for Fake Factor study. We only consider the sub-leading the 3rd-leading leptons since the leading lepton is assumed to be tight
+          if(MET_FinalCollection_Pt<20){
+             if(EMU){
+                 if (f==1){ // in MR, we fill histgrams for both electron and muon (when EMU=true)
+                     HistsFF[f-1][ch][0][4]->Fill((*selectedLeptons)[anti_flavor]->pt_,weight_lepB);
+                     HistsFF[f-1][ch][0][5]->Fill((*selectedLeptons)[3-anti_flavor]->pt_,weight_lepB);
+                 }
+                 else{// in anti-MR and AR, we only fill hisogram for anti-selected lepton
+                     HistsFF[f-1][ch][0][3+anti_flavor]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lepB);
+                 }
+              }
+             else{
+                 if (f==1){// in MR, we fill histgrams for both sub-leading and 3-rd leading leptons (when EMU=false)
+                     HistsFF[f-1][ch][0][2*anti_flavor-2]->Fill((*selectedLeptons)[1]->pt_,weight_lepB);
+                     HistsFF[f-1][ch][0][2*anti_flavor-1]->Fill((*selectedLeptons)[2]->pt_,weight_lepB);
+                 }
+                 else{// in anti-MR and AR, we only fill histgrams for anti-selected lepton
+                     HistsFF[f-1][ch][0][2*anti_flavor+anti_index-3]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lepB);
+                 }
+             }
+          }
+
+          if(MET_FinalCollection_Pt>20&&nbjet==2){
+              if(EMU){
+                  if (f==1){
+                      HistsFF[f-1][ch][1][4]->Fill((*selectedLeptons)[anti_flavor]->pt_,weight_lepB);
+                      HistsFF[f-1][ch][1][5]->Fill((*selectedLeptons)[3-anti_flavor]->pt_,weight_lepB);
+                  }
+                  else{
+                      HistsFF[f-1][ch][1][3+anti_flavor]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lepB);
+                  }
+              }
+              else{
+                  if (f==1){
+                      HistsFF[f-1][ch][1][2*anti_flavor-2]->Fill((*selectedLeptons)[1]->pt_,weight_lepB);
+                      HistsFF[f-1][ch][1][2*anti_flavor-1]->Fill((*selectedLeptons)[2]->pt_,weight_lepB);
+                  }
+                  else{
+                      HistsFF[f-1][ch][1][2*anti_flavor+anti_index-3]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lepB);
+                  }
+              }
+          }
+
+      }
+      
   if (f==0) {
       
-    if(ch==1){
+    if(ch==1&&data == "mc"){
     h2_jetvsMET->Fill(selectedJets->size(),MET_FinalCollection_Pt,weight_lep);
     h2_OnZvsjet->Fill(OnZ?1:0,selectedJets->size(),weight_lepC);
     h2_OnZvsMET->Fill(OnZ?1:0,MET_FinalCollection_Pt,weight_lepC);
     h2_bjetvsMET->Fill(nbjet,MET_FinalCollection_Pt,weight_lepB);
     h2_OnZvsbjet->Fill(OnZ?1:0,nbjet,weight_lepB);
     h2_jetvsbjet->Fill(selectedJets->size(),nbjet,weight_lepB);
+        
+    h1_MCb_Denom->Fill(1);
+    h1_MCb_Denom->Fill(2);
+    h1_MCb_Denom->Fill(3);
+    h1_MCb_Denom->Fill(4);
+    if (nMCb0>0) h1_MCb_Num->Fill(1);
+    if (nMCb1>0) h1_MCb_Num->Fill(2);
+    if (nMCb2>0) h1_MCb_Num->Fill(3);
+    if (nMCb3>0) h1_MCb_Num->Fill(4);
+        
+    h2_RegionvsBtag_Denom_b->Fill(4,1,weight_lep);
+    h2_RegionvsBtag_Denom_c->Fill(4,1,weight_lep);
+    h2_RegionvsBtag_Denom_udsg->Fill(4,1,weight_lep);
+    h2_RegionvsBtag_Denom_b->Fill(3,1,weight_lep);
+    h2_RegionvsBtag_Denom_c->Fill(3,1,weight_lep);
+    h2_RegionvsBtag_Denom_udsg->Fill(3,1,weight_lep);
+    h2_RegionvsBtag_Num_b->Fill(4,1,weight_lep*nbjet);
+    h2_RegionvsBtag_Num_c->Fill(4,1,weight_lep*nbjet);
+    h2_RegionvsBtag_Num_udsg->Fill(4,1,weight_lep*nbjet);
+    h2_RegionvsBtag_Denom_b->Fill(1,1,weight_lep);
+    h2_RegionvsBtag_Denom_c->Fill(1,1,weight_lep);
+    h2_RegionvsBtag_Denom_udsg->Fill(1,1,weight_lep);
+    if (nMCb>0) h2_RegionvsBtag_Num_b->Fill(1,1,weight_lep);
+    if (nMCc>0) h2_RegionvsBtag_Num_c->Fill(1,1,weight_lep);
+    if (nMCudsg>0) h2_RegionvsBtag_Num_udsg->Fill(1,1,weight_lep);
+        
+        if(OnZ){
+            h2_RegionvsBtag_Denom_b->Fill(4,2,weight_lep);
+            h2_RegionvsBtag_Denom_c->Fill(4,2,weight_lep);
+            h2_RegionvsBtag_Denom_udsg->Fill(4,2,weight_lep);
+            h2_RegionvsBtag_Denom_b->Fill(3,2,weight_lep);
+            h2_RegionvsBtag_Denom_c->Fill(3,2,weight_lep);
+            h2_RegionvsBtag_Denom_udsg->Fill(3,2,weight_lep);
+            h2_RegionvsBtag_Num_b->Fill(4,2,weight_lep*nbjet);
+            h2_RegionvsBtag_Num_c->Fill(4,2,weight_lep*nbjet);
+            h2_RegionvsBtag_Num_udsg->Fill(4,2,weight_lep*nbjet);
+            h2_RegionvsBtag_Denom_b->Fill(1,2,weight_lep);
+            h2_RegionvsBtag_Denom_c->Fill(1,2,weight_lep);
+            h2_RegionvsBtag_Denom_udsg->Fill(1,2,weight_lep);
+            if (nMCb>0) h2_RegionvsBtag_Num_b->Fill(1,2,weight_lep);
+            if (nMCc>0) h2_RegionvsBtag_Num_c->Fill(1,2,weight_lep);
+            if (nMCudsg>0) h2_RegionvsBtag_Num_udsg->Fill(1,2,weight_lep);
+        }
+        else{
+            h2_RegionvsBtag_Denom_b->Fill(4,3,weight_lep);
+            h2_RegionvsBtag_Denom_c->Fill(4,3,weight_lep);
+            h2_RegionvsBtag_Denom_udsg->Fill(4,3,weight_lep);
+            h2_RegionvsBtag_Denom_b->Fill(3,3,weight_lep);
+            h2_RegionvsBtag_Denom_c->Fill(3,3,weight_lep);
+            h2_RegionvsBtag_Denom_udsg->Fill(3,3,weight_lep);
+            h2_RegionvsBtag_Num_b->Fill(4,3,weight_lep*nbjet);
+            h2_RegionvsBtag_Num_c->Fill(4,3,weight_lep*nbjet);
+            h2_RegionvsBtag_Num_udsg->Fill(4,3,weight_lep*nbjet);
+            h2_RegionvsBtag_Denom_b->Fill(1,3,weight_lep);
+            h2_RegionvsBtag_Denom_c->Fill(1,3,weight_lep);
+            h2_RegionvsBtag_Denom_udsg->Fill(1,3,weight_lep);
+            if (nMCb>0) h2_RegionvsBtag_Num_b->Fill(1,3,weight_lep);
+            if (nMCc>0) h2_RegionvsBtag_Num_c->Fill(1,3,weight_lep);
+            if (nMCudsg>0) h2_RegionvsBtag_Num_udsg->Fill(1,3,weight_lep);
+            if(selectedJets->size()==1){
+                h2_RegionvsBtag_Denom_b->Fill(4,4,weight_lep);
+                h2_RegionvsBtag_Denom_c->Fill(4,4,weight_lep);
+                h2_RegionvsBtag_Denom_udsg->Fill(4,4,weight_lep);
+                h2_RegionvsBtag_Denom_b->Fill(3,4,weight_lep);
+                h2_RegionvsBtag_Denom_c->Fill(3,4,weight_lep);
+                h2_RegionvsBtag_Denom_udsg->Fill(3,4,weight_lep);
+                h2_RegionvsBtag_Num_b->Fill(4,4,weight_lep*nbjet);
+                h2_RegionvsBtag_Num_c->Fill(4,4,weight_lep*nbjet);
+                h2_RegionvsBtag_Num_udsg->Fill(4,4,weight_lep*nbjet);
+                h2_RegionvsBtag_Denom_b->Fill(1,4,weight_lep);
+                h2_RegionvsBtag_Denom_c->Fill(1,4,weight_lep);
+                h2_RegionvsBtag_Denom_udsg->Fill(1,4,weight_lep);
+                if (nMCb>0) h2_RegionvsBtag_Num_b->Fill(1,4,weight_lep);
+                if (nMCc>0) h2_RegionvsBtag_Num_c->Fill(1,4,weight_lep);
+                if (nMCudsg>0) h2_RegionvsBtag_Num_udsg->Fill(1,4,weight_lep);
+            }
+            if(selectedJets->size()==2){
+                h2_RegionvsBtag_Denom_b->Fill(4,5,weight_lep);
+                h2_RegionvsBtag_Denom_c->Fill(4,5,weight_lep);
+                h2_RegionvsBtag_Denom_udsg->Fill(4,5,weight_lep);
+                h2_RegionvsBtag_Denom_b->Fill(3,5,weight_lep);
+                h2_RegionvsBtag_Denom_c->Fill(3,5,weight_lep);
+                h2_RegionvsBtag_Denom_udsg->Fill(3,5,weight_lep);
+                h2_RegionvsBtag_Num_b->Fill(4,5,weight_lep*nbjet);
+                h2_RegionvsBtag_Num_c->Fill(4,5,weight_lep*nbjet);
+                h2_RegionvsBtag_Num_udsg->Fill(4,5,weight_lep*nbjet);
+                h2_RegionvsBtag_Denom_b->Fill(1,5,weight_lep);
+                h2_RegionvsBtag_Denom_c->Fill(1,5,weight_lep);
+                h2_RegionvsBtag_Denom_udsg->Fill(1,5,weight_lep);
+                if (nMCb>0) h2_RegionvsBtag_Num_b->Fill(1,5,weight_lep);
+                if (nMCc>0) h2_RegionvsBtag_Num_c->Fill(1,5,weight_lep);
+                if (nMCudsg>0) h2_RegionvsBtag_Num_udsg->Fill(1,5,weight_lep);
+            }
+            if(selectedJets->size()>2){
+                h2_RegionvsBtag_Denom_b->Fill(4,6,weight_lep);
+                h2_RegionvsBtag_Denom_c->Fill(4,6,weight_lep);
+                h2_RegionvsBtag_Denom_udsg->Fill(4,6,weight_lep);
+                h2_RegionvsBtag_Denom_b->Fill(3,6,weight_lep);
+                h2_RegionvsBtag_Denom_c->Fill(3,6,weight_lep);
+                h2_RegionvsBtag_Denom_udsg->Fill(3,6,weight_lep);
+                h2_RegionvsBtag_Num_b->Fill(4,6,weight_lep*nbjet);
+                h2_RegionvsBtag_Num_c->Fill(4,6,weight_lep*nbjet);
+                h2_RegionvsBtag_Num_udsg->Fill(4,6,weight_lep*nbjet);
+                h2_RegionvsBtag_Denom_b->Fill(1,6,weight_lep);
+                h2_RegionvsBtag_Denom_c->Fill(1,6,weight_lep);
+                h2_RegionvsBtag_Denom_udsg->Fill(1,6,weight_lep);
+                if (nMCb>0) h2_RegionvsBtag_Num_b->Fill(1,6,weight_lep);
+                if (nMCc>0) h2_RegionvsBtag_Num_c->Fill(1,6,weight_lep);
+                if (nMCudsg>0) h2_RegionvsBtag_Num_udsg->Fill(1,6,weight_lep);
+            }
+        }
+    
+    for (int l=0;l<selectedJets->size();l++){
+        
+        if( abs((*selectedJets)[l]->flavor_) == 5){
+            
+            h2_RegionvsBtag_Denom_b->Fill(2,1,weight_lep);
+            if(OnZ){
+                h2_RegionvsBtag_Denom_b->Fill(2,2,weight_lep);
+            }
+            else{
+                h2_RegionvsBtag_Denom_b->Fill(2,3,weight_lep);
+                if(selectedJets->size()==1){
+                    h2_RegionvsBtag_Denom_b->Fill(2,4,weight_lep);
+                }
+                if(selectedJets->size()==2){
+                    h2_RegionvsBtag_Denom_b->Fill(2,5,weight_lep);
+                }
+                if(selectedJets->size()>2){
+                    h2_RegionvsBtag_Denom_b->Fill(2,6,weight_lep);
+                }
+            }
+            
+            if( (*selectedJets)[l]->btag_ ) {
+                h2_RegionvsBtag_Num_b->Fill(2,1,weight_lep);
+                h2_RegionvsBtag_Num_b->Fill(3,1,weight_lep);
+                if(OnZ){
+                    h2_RegionvsBtag_Num_b->Fill(2,2,weight_lep);
+                    h2_RegionvsBtag_Num_b->Fill(3,2,weight_lep);
+                }
+                else{
+                    h2_RegionvsBtag_Num_b->Fill(2,3,weight_lep);
+                    h2_RegionvsBtag_Num_b->Fill(3,3,weight_lep);
+                    if(selectedJets->size()==1){
+                        h2_RegionvsBtag_Num_b->Fill(2,4,weight_lep);
+                        h2_RegionvsBtag_Num_b->Fill(3,4,weight_lep);
+                    }
+                    if(selectedJets->size()==2){
+                        h2_RegionvsBtag_Num_b->Fill(2,5,weight_lep);
+                        h2_RegionvsBtag_Num_b->Fill(3,5,weight_lep);
+                    }
+                    if(selectedJets->size()>2){
+                        h2_RegionvsBtag_Num_b->Fill(2,6,weight_lep);
+                        h2_RegionvsBtag_Num_b->Fill(3,6,weight_lep);
+                    }
+                }
+            }
+            
+        }
+        if( abs((*selectedJets)[l]->flavor_) == 4){
+
+            h2_RegionvsBtag_Denom_c->Fill(2,1,weight_lep);
+            if(OnZ){
+                h2_RegionvsBtag_Denom_c->Fill(2,2,weight_lep);
+            }
+            else{
+                h2_RegionvsBtag_Denom_c->Fill(2,3,weight_lep);
+                if(selectedJets->size()==1){
+                    h2_RegionvsBtag_Denom_c->Fill(2,4,weight_lep);
+                }
+                if(selectedJets->size()==2){
+                    h2_RegionvsBtag_Denom_c->Fill(2,5,weight_lep);
+                }
+                if(selectedJets->size()>2){
+                    h2_RegionvsBtag_Denom_c->Fill(2,6,weight_lep);
+                }
+            }
+            
+            if( (*selectedJets)[l]->btag_ ) {
+                h2_RegionvsBtag_Num_c->Fill(2,1,weight_lep);
+                h2_RegionvsBtag_Num_c->Fill(3,1,weight_lep);
+                if(OnZ){
+                    h2_RegionvsBtag_Num_c->Fill(2,2,weight_lep);
+                    h2_RegionvsBtag_Num_c->Fill(3,2,weight_lep);
+                }
+                else{
+                    h2_RegionvsBtag_Num_c->Fill(2,3,weight_lep);
+                    h2_RegionvsBtag_Num_c->Fill(3,3,weight_lep);
+                    if(selectedJets->size()==1){
+                        h2_RegionvsBtag_Num_c->Fill(2,4,weight_lep);
+                        h2_RegionvsBtag_Num_c->Fill(3,4,weight_lep);
+                    }
+                    if(selectedJets->size()==2){
+                        h2_RegionvsBtag_Num_c->Fill(2,5,weight_lep);
+                        h2_RegionvsBtag_Num_c->Fill(3,5,weight_lep);
+                    }
+                    if(selectedJets->size()>2){
+                        h2_RegionvsBtag_Num_c->Fill(2,6,weight_lep);
+                        h2_RegionvsBtag_Num_c->Fill(3,6,weight_lep);
+                    }
+                }
+            }
+            
+        }
+        if( abs((*selectedJets)[l]->flavor_) != 4 && abs((*selectedJets)[l]->flavor_) != 5){
+            
+            h2_RegionvsBtag_Denom_udsg->Fill(2,1,weight_lep);
+            if(OnZ){
+                h2_RegionvsBtag_Denom_udsg->Fill(2,2,weight_lep);
+            }
+            else{
+                h2_RegionvsBtag_Denom_udsg->Fill(2,3,weight_lep);
+                if(selectedJets->size()==1){
+                    h2_RegionvsBtag_Denom_udsg->Fill(2,4,weight_lep);
+                }
+                if(selectedJets->size()==2){
+                    h2_RegionvsBtag_Denom_udsg->Fill(2,5,weight_lep);
+                }
+                if(selectedJets->size()>2){
+                    h2_RegionvsBtag_Denom_udsg->Fill(2,6,weight_lep);
+                }
+            }
+            
+            if( (*selectedJets)[l]->btag_ ) {
+                h2_RegionvsBtag_Num_udsg->Fill(2,1,weight_lep);
+                h2_RegionvsBtag_Num_udsg->Fill(3,1,weight_lep);
+                if(OnZ){
+                    h2_RegionvsBtag_Num_udsg->Fill(2,2,weight_lep);
+                    h2_RegionvsBtag_Num_udsg->Fill(3,2,weight_lep);
+                }
+                else{
+                    h2_RegionvsBtag_Num_udsg->Fill(2,3,weight_lep);
+                    h2_RegionvsBtag_Num_udsg->Fill(3,3,weight_lep);
+                    if(selectedJets->size()==1){
+                        h2_RegionvsBtag_Num_udsg->Fill(2,4,weight_lep);
+                        h2_RegionvsBtag_Num_udsg->Fill(3,4,weight_lep);
+                    }
+                    if(selectedJets->size()==2){
+                        h2_RegionvsBtag_Num_udsg->Fill(2,5,weight_lep);
+                        h2_RegionvsBtag_Num_udsg->Fill(3,5,weight_lep);
+                    }
+                    if(selectedJets->size()>2){
+                        h2_RegionvsBtag_Num_udsg->Fill(2,6,weight_lep);
+                        h2_RegionvsBtag_Num_udsg->Fill(3,6,weight_lep);
+                    }
+                }
+            }
+            
+        }
+    }
+        
     }
       
     Hists[ch][0][0]->Fill((*selectedLeptons)[0]->pt_,weight_lep);
@@ -1756,7 +2171,7 @@ for (int f=0;f<4;f++){
       for (int l=0;l<vars.size();++l){
         Hists[i][k][l]  ->Write("",TObject::kOverwrite);
         for (int n=0;n<sys.size();++n){
-            if (k==0){
+            if (k<0){//Not saving any hists related to sys-uncertainties
             HistsSysUp[i][k][l][n]->Write("",TObject::kOverwrite);
             HistsSysDown[i][k][l][n]->Write("",TObject::kOverwrite);
             }
@@ -1764,6 +2179,16 @@ for (int f=0;f<4;f++){
       }
     }
   }
+    
+    for (int i=0;i<FF.size();++i){
+        for (int k=0;k<channels.size();++k){
+            for (int l=0;l<FFregions.size();++l){
+                for (int n=0;n<FFvars.size();++n){
+                        HistsFF[i][k][l][n]->Write("",TObject::kOverwrite);
+                }
+            }
+        }
+    }
 
   for (int i=0;i<channels.size();++i){
     for (int k=0;k<regions.size();++k){
@@ -1776,13 +2201,34 @@ for (int f=0;f<4;f++){
       }
     }
   }
+    
+    for (int i=0;i<FF.size();++i){
+        for (int k=0;k<channels.size();++k){
+            for (int l=0;l<FFregions.size();++l){
+                for (int n=0;n<FFvars.size();++n){
+                    delete HistsFF[i][k][l][n];
+                }
+            }
+        }
+    }
 
    h2_BTaggingEff_Denom_b   ->Write("",TObject::kOverwrite);
    h2_BTaggingEff_Denom_c   ->Write("",TObject::kOverwrite);
    h2_BTaggingEff_Denom_udsg->Write("",TObject::kOverwrite);
+   h2_BTaggingEff_Denom_all->Write("",TObject::kOverwrite);
    h2_BTaggingEff_Num_b     ->Write("",TObject::kOverwrite);
    h2_BTaggingEff_Num_c     ->Write("",TObject::kOverwrite);
    h2_BTaggingEff_Num_udsg  ->Write("",TObject::kOverwrite);
+    
+   h2_RegionvsBtag_Num_b   ->Write("",TObject::kOverwrite);
+   h2_RegionvsBtag_Num_c   ->Write("",TObject::kOverwrite);
+   h2_RegionvsBtag_Num_udsg   ->Write("",TObject::kOverwrite);
+   h2_RegionvsBtag_Denom_b   ->Write("",TObject::kOverwrite);
+   h2_RegionvsBtag_Denom_c   ->Write("",TObject::kOverwrite);
+   h2_RegionvsBtag_Denom_udsg   ->Write("",TObject::kOverwrite);
+    
+   h1_MCb_Denom   ->Write("",TObject::kOverwrite);
+   h1_MCb_Num   ->Write("",TObject::kOverwrite);
     
     h2_jetvsMET->Write("",TObject::kOverwrite);
     h2_OnZvsjet->Write("",TObject::kOverwrite);
@@ -1791,7 +2237,9 @@ for (int f=0;f<4;f++){
     h2_OnZvsbjet->Write("",TObject::kOverwrite);
     h2_jetvsbjet->Write("",TObject::kOverwrite);
     
-    h2_FFvsRegion->Write("",TObject::kOverwrite);
+    h2_FFvsRegion_eee->Write("",TObject::kOverwrite);
+    h2_FFvsRegion_emul->Write("",TObject::kOverwrite);
+    h2_FFvsRegion_mumumu->Write("",TObject::kOverwrite);
 
    delete h2_BTaggingEff_Denom_b;
    delete h2_BTaggingEff_Denom_c;
@@ -1799,6 +2247,17 @@ for (int f=0;f<4;f++){
    delete h2_BTaggingEff_Num_b;
    delete h2_BTaggingEff_Num_c;
    delete h2_BTaggingEff_Num_udsg;
+   delete h2_BTaggingEff_Denom_all;
+    
+   delete h2_RegionvsBtag_Denom_b;
+   delete h2_RegionvsBtag_Denom_c;
+   delete h2_RegionvsBtag_Denom_udsg;
+   delete h2_RegionvsBtag_Num_b;
+   delete h2_RegionvsBtag_Num_c;
+   delete h2_RegionvsBtag_Num_udsg;
+    
+   delete h1_MCb_Num;
+   delete h1_MCb_Denom;
 
    delete h2_jetvsMET;
    delete h2_OnZvsjet;
@@ -1807,7 +2266,9 @@ for (int f=0;f<4;f++){
    delete h2_OnZvsbjet;
    delete h2_jetvsbjet;
     
-   delete h2_FFvsRegion;
+   delete h2_FFvsRegion_eee;
+   delete h2_FFvsRegion_emul;
+   delete h2_FFvsRegion_mumumu;
     
   file_out.Close() ;
 }

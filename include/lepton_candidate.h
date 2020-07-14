@@ -22,8 +22,12 @@ public:
   int indice_;
   int lep_;
   int isbalep;//bachelor lepton: lepton comeing from standard top
+  int isantilep;//anti-selected lepton
   void setbalep(){
        isbalep=1;
+  }
+  void setantilep(){
+       isantilep=1;
   }
   TLorentzVector p4_;
 
