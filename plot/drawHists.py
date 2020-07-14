@@ -459,8 +459,8 @@ variables=["lep1Pt","lep1Eta","lep1Phi","lep2Pt","lep2Eta","lep2Phi","lep3Pt","l
 variablesName=["Leading lepton p_{T} [GeV]","Leading lepton #eta","Leading lepton #varphi","2nd-Leading lepton p_{T} [GeV]","2nd-Leading lepton #eta","2nd-Leading lepton #varphi","3rd-Leading lepton p_{T} [GeV]","3rd-Leading lepton #eta","3rd-Leading lepton #varphi","cLFV electron p_{T} [GeV]","cLFV electron #eta","cLFV electron #varphi","cLFV muon p_{T} [GeV]","cLFV muon #eta","cLFV muon #varphi","Bachelor lepton p_{T} [GeV]","Bachelor lepton #eta","Bachelor lepton #varphi","Standard top mass [GeV]","M(ll) [GeV]","p_{T}(ll) [GeV]","#Delta R(ll)","#Delta #varphi(ll)","Leading jet p_{T} [GeV]","Leading jet #eta","Leading jet #varphi","Number of jets","Number of b-tagged jets","MET [GeV]","#varphi(MET)","Number of vertices", "M(ll) (OSSF) [GeV]", "cLFV top mass [GeV]"]
 
 FFregions=["lllMetl20","lllMetg20Jetgeq2B2"]
-FFvariables=["E2Pt","Mu2Pt","E3Pt","Mu3Pt","EPt","MuPt"]
-FFvariablesName=["2nd Electron p_{T} [GeV]","2nd Muon p_{T} [GeV]","3rd Electron p_{T} [GeV]","3rd Muon p_{T} [GeV]","Electron p_{T} [GeV]","Muon p_{T} [GeV]",]
+FFvariables=["E2Pt","E3Pt","Mu2Pt","Mu3Pt","EPt","MuPt"]
+FFvariablesName=["2nd Electron p_{T} [GeV]","3rd Eletron p_{T} [GeV]","2nd Muon p_{T} [GeV]","3rd Muon p_{T} [GeV]","Electron p_{T} [GeV]","Muon p_{T} [GeV]",]
 FF=["MR","antiMR","AR"]
 
 

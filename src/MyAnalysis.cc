@@ -245,7 +245,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
   }
 
   std::vector<TString> FF{"MR", "antiMR", "AR"};
-  std::vector<TString> FFvars   {"E2Pt","Mu2Pt","E3Pt","Mu3Pt","EPt","MuPt"};//E2Pt means sub-leading electron when both of the sub-leading and the 3-rd leading leptons are electrons
+  std::vector<TString> FFvars   {"E2Pt","E3Pt","Mu2Pt","Mu3Pt","EPt","MuPt"};//E2Pt means sub-leading electron when both of the sub-leading and the 3-rd leading leptons are electrons
   std::vector<TString> FFregions{"lllMetl20", "lllMetg20Jetgeq2B2"};
   Dim4 HistsFF(FF.size(),Dim3(channels.size(),Dim2(FFregions.size(),Dim1(FFvars.size()))));
   std::vector<int> FFnbins   {15,15,15,15,15,15};
