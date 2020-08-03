@@ -244,20 +244,21 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
       }
   }
 
-  std::vector<TString> FF{"MR", "antiMR", "AR"};
-  std::vector<TString> FFvars   {"E2Pt","E3Pt","Mu2Pt","Mu3Pt","EPt","MuPt"};//E2Pt means sub-leading electron when both of the sub-leading and the 3-rd leading leptons are electrons
-  std::vector<TString> FFregions{"lllMetl20", "lllMetg20Jetgeq2B2"};
+  std::vector<TString> FF{"MR", "AR"};
+  std::vector<TString> FFvars   {"FakeableEPt","FakeableMuPt","TightEPt","TightMuPt","AntiEPt","AntiMuPt"};//
+  std::vector<TString> FFregions{"lll", "lllMetl20", "lllMetg20","lllOnZ","lllOffZ","lllMetg20B1"};
   Dim4 HistsFF(FF.size(),Dim3(channels.size(),Dim2(FFregions.size(),Dim1(FFvars.size()))));
-  std::vector<int> FFnbins   {15,15,15,15,15,15};
-  std::vector<float> FFlowEdge  {0,0,0,0,0,0};
-  std::vector<float> FFhighEdge {150,150,150,150,150,150};
+  Double_t ptBinsFF[9] = {0., 25., 30., 40., 50., 65., 80., 100., 120.};
+  Double_t ptBinslep1[31] = {0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 110., 120., 130., 140., 150.,160., 170., 180.,190.,200.,210.,220.,230.,240.,250.,260.,270.,280.,290.,300.};
+  TH2F *h2_lep1Pt_e    = new TH2F("h2_lep1Pt_e"   , ";Leading lepton p_{T} [GeV];Electron p_{T} [GeV]", 30 , ptBinslep1, 8 , ptBinsFF);
+  TH2F *h2_lep1Pt_mu    = new TH2F("h2_lep1Pt_mu"   , ";Leading lepton p_{T} [GeV];Muon p_{T} [GeV]", 30 , ptBinslep1, 8 , ptBinsFF);
     
     for (int i=0;i<FF.size();++i){
         for (int k=0;k<channels.size();++k){
             for (int l=0;l<FFregions.size();++l){
                 for (int n=0;n<FFvars.size();++n){
                     name<<FF[i]<<"_"<<channels[k]<<"_"<<FFregions[l]<<"_"<<FFvars[n];
-                    h_test = new TH1F((name.str()).c_str(),(name.str()).c_str(),FFnbins[n],FFlowEdge[n],FFhighEdge[n]);
+                    h_test = new TH1F((name.str()).c_str(),(name.str()).c_str(),8,ptBinsFF);
                     h_test->StatOverflows(kTRUE);
                     h_test->Sumw2(kTRUE);
                     HistsFF[i][k][l][n] = h_test;
@@ -459,7 +460,8 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
   double P_bjet_mc;
   int nAccept=0;
   int nbjet;
-  int nTight;// # of tight leptons
+  int nTight;// # of Tight leptons
+  bool isTight;// Is the Fakeable lepton tight ?
   bool ARveto;
   float t1,t2,t3,t4;
   float z1,z2;
@@ -469,9 +471,8 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
   float mT=173.07;
   float mZ=91.2;
   bool OnZ=false;//Opposite Sign&&Same Flavor (OSSF) pair present in event
-  int anti_index;// index of the anti-selected lepton in the container
-  int anti_flavor;// flavor of the anti-selected lepton: 1 means electron 2 means muons
-  bool EMU;// true means sub-leading and the 3rd-leading lepton have different flavor
+  int anti_index;// index of the Loose lepton in the container
+  int anti_flavor;// flavor of the Loose lepton: 1 means electron 2 means muons
   int nMCb; // number of gen level b jets
   int nMCc;
   int nMCudsg;
@@ -487,17 +488,16 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
   Long64_t nbytes = 0, nb = 0;
   Long64_t ntr = fChain->GetEntries ();
     
-for (int f=0;f<4;f++){
+for (int f=0;f<3;f++){
     //f=0 SR
     //f=1 MR
-    //f=2 Ant-MR
-    //f=3 AR
+    //f=2 AR
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
 //  for (Long64_t jentry=0; jentry<100;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    displayProgress(jentry+f*ntr, ntr*4) ;
+    displayProgress(jentry+f*ntr, ntr*3) ;
 
     triggerPassEE = false;
     triggerPassEMu = false;
@@ -657,13 +657,14 @@ for (int f=0;f<4;f++){
   selectedLeptons = new std::vector<lepton_candidate*>();//typlical ordered by pT
   selectedLeptons_copy = new std::vector<lepton_candidate*>();// ordered by [e, mu , bachelor lepton ]
   nTight=0;
+  isTight=false;
   anti_index=0;
   anti_flavor=0;
 // electron
     for (int l=0;l<gsf_pt->size();l++){
       elePt = (*gsf_ecalTrkEnergyPostCorr)[l]*sin(2.*atan(exp(-1.*(*gsf_eta)[l]))) ;
-      if(elePt <15 || abs((*gsf_eta)[l]) > 2.4 || (abs((*gsf_sc_eta)[l])> 1.4442 && (abs((*gsf_sc_eta)[l])< 1.566))) continue;
-      if((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]&&elePt>20&f==0) {
+      if(elePt <20 || abs((*gsf_eta)[l]) > 2.4 || (abs((*gsf_sc_eta)[l])> 1.4442 && (abs((*gsf_sc_eta)[l])< 1.566))) continue;
+      if((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]&&f==0) {
       selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
       selectedLeptons_copy->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
       if (data == "mc"){
@@ -677,18 +678,26 @@ for (int f=0;f<4;f++){
           sysUpWeights[1] = sysUpWeights[1] * scale_factor(&sf_Ele_ID_H ,(*gsf_sc_eta)[l],(*gsf_pt)[l],"up");
           sysDownWeights[1] = sysDownWeights[1] * scale_factor(&sf_Ele_ID_H ,(*gsf_sc_eta)[l],(*gsf_pt)[l],"down");
          }
-      }// we do the following if f>0
-      if((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_loose)[l]&&f>0){
-        if((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]&&elePt>20){
+      }// we enter FF regions when f>0
+      if(f>0){
+          if (f==1&&nTight==2){//Only fill in the third electron if there are two tight electrons already.
+              selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
+              selectedLeptons_copy->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
+              (*selectedLeptons)[selectedLeptons->size()-1]->setantilep();//label the fakeable electron
+              anti_flavor=1;
+              if((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]) isTight=true;
+              continue;
+          }
+        if((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]){
             selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
             selectedLeptons_copy->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
             nTight++;
-        }// we selection loose leptons only when f = 2 or f =3
-        if (!(*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]&&f>1){
+        }
+        else if (f==2) {
             selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
             selectedLeptons_copy->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
-            (*selectedLeptons)[selectedLeptons->size()-1]->setantilep();
-            anti_flavor=1;// there is a loose electron in the lepton container
+            (*selectedLeptons)[selectedLeptons->size()-1]->setantilep();// label the fakeable electron that fails the tight selection
+            anti_flavor=1;
            }
         }
     }
@@ -701,8 +710,8 @@ for (int f=0;f<4;f++){
          if ((*mu_mc_index)[l]!=-1 && abs((*mc_pdgId)[(*mu_mc_index)[l]]) == 13) muPtSFRochester = rc.kSpreadMC((*mu_gt_charge)[l], (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l], (*mc_pt)[(*mu_mc_index)[l]],0, 0);
          if ((*mu_mc_index)[l]<0) muPtSFRochester = rc.kSmearMC((*mu_gt_charge)[l], (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l], (*mu_trackerLayersWithMeasurement)[l] , gRandom->Rndm(),0, 0);
       }
-      if(muPtSFRochester * (*mu_gt_pt)[l] <15 || abs((*mu_gt_eta)[l]) > 2.4) continue;
-      if((*mu_isTightMuon)[l] && (*mu_pfIsoDbCorrected04)[l] < 0.15 && muPtSFRochester * (*mu_gt_pt)[l] >20 && f==0){
+      if(muPtSFRochester * (*mu_gt_pt)[l] <20 || abs((*mu_gt_eta)[l]) > 2.4) continue;
+      if((*mu_isTightMuon)[l] && (*mu_pfIsoDbCorrected04)[l] < 0.15 && f==0){
       selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
       selectedLeptons_copy->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
       if (data == "mc" && year == "2016") {
@@ -728,32 +737,32 @@ for (int f=0;f<4;f++){
           sysDownWeights[3] = sysDownWeights[3] * scale_factor(&sf_Mu_ISO_H, (*mu_gt_pt)[l], abs((*mu_gt_eta)[l]),"down");
        }
       }
-      if((*mu_isLooseMuon)[l] && f>0){
-        if((*mu_isTightMuon)[l] && (*mu_pfIsoDbCorrected04)[l] < 0.15 && muPtSFRochester * (*mu_gt_pt)[l] >20){
-              selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
-              selectedLeptons_copy->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
-              nTight++;
-          }
-          if (!(*mu_isTightMuon)[l]&&(*mu_pfIsoDbCorrected04)[l] > 0.15&&f>1){
-              selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
-              selectedLeptons_copy->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
-              (*selectedLeptons)[selectedLeptons->size()-1]->setantilep();
-              anti_flavor=2; // there is a loose muon in the lepton container
-          }
+        if(f>0){
+            if (f==1&&nTight==2){
+                selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
+                selectedLeptons_copy->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
+                (*selectedLeptons)[selectedLeptons->size()-1]->setantilep();//label the fakeable muon
+                anti_flavor=2;
+                if((*mu_isTightMuon)[l]&&(*mu_pfIsoDbCorrected04)[l] < 0.15) isTight=true;
+                continue;
+            }
+            if((*mu_isTightMuon)[l]&&(*mu_pfIsoDbCorrected04)[l] < 0.15){
+                selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
+                selectedLeptons_copy->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
+                nTight++;
+            }
+            else if (f==2) {
+                selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
+                selectedLeptons_copy->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
+                (*selectedLeptons)[selectedLeptons->size()-1]->setantilep();
+                anti_flavor=2;
+            }
         }
     }
     ARveto=false;
     sort(selectedLeptons->begin(), selectedLeptons->end(), ComparePtLep);
-    if (f==1&&selectedLeptons->size()>2){//in MR, there should be no anti-selected leptons. anti_flavor is used to keep track of lepton flavor (with the help of ch1)
-        if ((*selectedLeptons)[1]->lep_== 1){
-            anti_flavor=1;
-        }
-        else{
-            anti_flavor=2;
-        }
-      }
-    if (f>1&&selectedLeptons->size()>2) {
-    if (nTight!=2||(*selectedLeptons)[0]->isantilep){//in anti-MR and AR we want two tight leptons and one anti-selected. the leading lepton must be tight.
+    if (f>0&&selectedLeptons->size()>2) {
+    if (nTight!=2||(*selectedLeptons)[0]->isantilep){//in MR and AR we want two tight leptons and one Fakeable lepton. In AR, the fakeable lepton must fail the tight requirement.
        ARveto=true;
        }
        if ((*selectedLeptons)[1]->isantilep){
@@ -766,7 +775,7 @@ for (int f=0;f<4;f++){
 // trilepton selection
 //cout<<ev_event<<"  "<<triggerPass<<"  "<<metFilterPass<<"  "<<selectedLeptons->size()<<endl;
     if(selectedLeptons->size()!=3 ||
-      ((*selectedLeptons)[0]->pt_ <27) ||
+      ((*selectedLeptons)[0]->pt_ <30) ||
       (abs((*selectedLeptons)[0]->charge_ + (*selectedLeptons)[1]->charge_ + (*selectedLeptons)[2]->charge_) != 1) || ARveto) {
 //      ((*selectedLeptons)[0]->lep_ + (*selectedLeptons)[1]->lep_ != 11 && ((*selectedLeptons)[0]->p4_ + (*selectedLeptons)[1]->p4_).M()<106 && ((*selectedLeptons)[0]->p4_ + (*selectedLeptons)[1]->p4_).M()>76) ||
 //      ((*selectedLeptons)[0]->p4_ + (*selectedLeptons)[1]->p4_).M()<20) {
@@ -1220,52 +1229,93 @@ for (int f=0;f<4;f++){
               }
           }
       }
-      
-      EMU=false;
-      if(ch == 1 && (*selectedLeptons)[0]->lep_== 1 && ch1 < 2) EMU=true;
-      if(ch == 1 && (*selectedLeptons)[0]->lep_== 10 && ch1 > 1) EMU=true;
-      if (!OnZ&&f>0){// Fill the histograms for Fake Factor study. We only consider the sub-leading the 3rd-leading leptons since the leading lepton is assumed to be tight
-          if(MET_FinalCollection_Pt<20){
-             if(EMU){
-                 if (f==1){ // in MR, we fill histgrams for both electron and muon (when EMU=true)
-                     HistsFF[f-1][ch][0][4]->Fill((*selectedLeptons)[anti_flavor]->pt_,weight_lepB);
-                     HistsFF[f-1][ch][0][5]->Fill((*selectedLeptons)[3-anti_flavor]->pt_,weight_lepB);
-                 }
-                 else{// in anti-MR and AR, we only fill hisogram for anti-selected lepton
-                     HistsFF[f-1][ch][0][3+anti_flavor]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lepB);
-                 }
+    
+      if (f>0){// Fill the histograms for Fake Factor study. We only consider the sub-leading the 3rd-leading leptons since the leading lepton is assumed to be tight
+          
+//          Debug
+//          cout<<endl<<"f = "<<f<<" ch = "<<ch<<" ch1 = "<<ch1<<endl;
+//          cout<<" isTight = "<<isTight<<" anti_index = "<<anti_index<<" anti_flavor = "<<anti_flavor<<endl;
+//          cout<<" 1st lep flavor = "<<(*selectedLeptons)[0]->lep_<<" 2nd lep = "<<(*selectedLeptons)[1]->lep_<<" 3rd lep = "<<(*selectedLeptons)[2]->lep_<<endl;
+//          cout<<" 1st lep isan = "<<(*selectedLeptons)[0]->isantilep<<" 2nd lep = "<<(*selectedLeptons)[1]->isantilep<<" 3rd lep = "<<(*selectedLeptons)[2]->isantilep<<endl;
+          
+              if (f==1){ //MR
+                  HistsFF[f-1][ch][0][anti_flavor-1]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+                  if (isTight){ //is the fakeable lepton tight ?
+                      HistsFF[f-1][ch][0][anti_flavor+1]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+                  }
               }
-             else{
-                 if (f==1){// in MR, we fill histgrams for both sub-leading and 3-rd leading leptons (when EMU=false)
-                     HistsFF[f-1][ch][0][2*anti_flavor-2]->Fill((*selectedLeptons)[1]->pt_,weight_lepB);
-                     HistsFF[f-1][ch][0][2*anti_flavor-1]->Fill((*selectedLeptons)[2]->pt_,weight_lepB);
-                 }
-                 else{// in anti-MR and AR, we only fill histgrams for anti-selected lepton
-                     HistsFF[f-1][ch][0][2*anti_flavor+anti_index-3]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lepB);
-                 }
-             }
-          }
-
-          if(MET_FinalCollection_Pt>20&&nbjet==2){
-              if(EMU){
-                  if (f==1){
-                      HistsFF[f-1][ch][1][4]->Fill((*selectedLeptons)[anti_flavor]->pt_,weight_lepB);
-                      HistsFF[f-1][ch][1][5]->Fill((*selectedLeptons)[3-anti_flavor]->pt_,weight_lepB);
+              else{ //AR
+                  HistsFF[f-1][ch][0][anti_flavor+3]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+                  if(ch==2){
+                  if (anti_flavor==1) {
+                      h2_lep1Pt_e->Fill((*selectedLeptons)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
                   }
                   else{
-                      HistsFF[f-1][ch][1][3+anti_flavor]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lepB);
+                      h2_lep1Pt_mu->Fill((*selectedLeptons)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+                  }
+                  }
+              }
+          
+          if(MET_FinalCollection_Pt<20){
+              if (f==1){
+                  HistsFF[f-1][ch][1][anti_flavor-1]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+                  if (isTight){
+                      HistsFF[f-1][ch][1][anti_flavor+1]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
                   }
               }
               else{
-                  if (f==1){
-                      HistsFF[f-1][ch][1][2*anti_flavor-2]->Fill((*selectedLeptons)[1]->pt_,weight_lepB);
-                      HistsFF[f-1][ch][1][2*anti_flavor-1]->Fill((*selectedLeptons)[2]->pt_,weight_lepB);
-                  }
-                  else{
-                      HistsFF[f-1][ch][1][2*anti_flavor+anti_index-3]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lepB);
-                  }
+                  HistsFF[f-1][ch][1][anti_flavor+3]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
               }
           }
+          
+          if(MET_FinalCollection_Pt>20){
+              if (f==1){
+                  HistsFF[f-1][ch][2][anti_flavor-1]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+                  if (isTight){
+                      HistsFF[f-1][ch][2][anti_flavor+1]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+                  }
+              }
+              else{
+                  HistsFF[f-1][ch][2][anti_flavor+3]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+              }
+          }
+          
+          if(OnZ){
+              if (f==1){
+                  HistsFF[f-1][ch][3][anti_flavor-1]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+                  if (isTight){
+                      HistsFF[f-1][ch][3][anti_flavor+1]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+                  }
+              }
+              else{
+                  HistsFF[f-1][ch][3][anti_flavor+3]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+              }
+          }
+          
+          if(!OnZ){
+              if (f==1){
+                  HistsFF[f-1][ch][4][anti_flavor-1]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+                  if (isTight){
+                      HistsFF[f-1][ch][4][anti_flavor+1]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+                  }
+              }
+              else{
+                  HistsFF[f-1][ch][4][anti_flavor+3]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lep);
+              }
+          }
+          
+          if(!OnZ&&MET_FinalCollection_Pt>20&&nbjet==1){
+              if (f==1){
+                  HistsFF[f-1][ch][5][anti_flavor-1]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lepB);
+                  if (isTight){
+                      HistsFF[f-1][ch][5][anti_flavor+1]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lepB);
+                  }
+              }
+              else{
+                  HistsFF[f-1][ch][5][anti_flavor+3]->Fill((*selectedLeptons)[anti_index]->pt_,weight_lepB);
+              }
+          }
+
 
       }
       
@@ -1813,7 +1863,7 @@ for (int f=0;f<4;f++){
     Hists[ch][5][31]->Fill(Zmass,weight_lepB);
     Hists[ch][5][32]->Fill(LFVTopmass,weight_lepB);
     }
-    if(MET_FinalCollection_Pt<20 && !OnZ){
+    if(MET_FinalCollection_Pt<20){
     Hists[ch][6][0]->Fill((*selectedLeptons)[0]->pt_,weight_lep);
     Hists[ch][6][1]->Fill((*selectedLeptons)[0]->eta_,weight_lep);
     Hists[ch][6][2]->Fill((*selectedLeptons)[0]->phi_,weight_lep);
@@ -1849,7 +1899,7 @@ for (int f=0;f<4;f++){
     Hists[ch][6][32]->Fill(LFVTopmass,weight_lepB);
     }
 
-    if(MET_FinalCollection_Pt>20 && !OnZ){
+    if(MET_FinalCollection_Pt>20){
     Hists[ch][7][0]->Fill((*selectedLeptons)[0]->pt_,weight_lep);
     Hists[ch][7][1]->Fill((*selectedLeptons)[0]->eta_,weight_lep);
     Hists[ch][7][2]->Fill((*selectedLeptons)[0]->phi_,weight_lep);
@@ -2240,6 +2290,9 @@ for (int f=0;f<4;f++){
     h2_FFvsRegion_eee->Write("",TObject::kOverwrite);
     h2_FFvsRegion_emul->Write("",TObject::kOverwrite);
     h2_FFvsRegion_mumumu->Write("",TObject::kOverwrite);
+    
+    h2_lep1Pt_e   ->Write("",TObject::kOverwrite);
+    h2_lep1Pt_mu   ->Write("",TObject::kOverwrite);
 
    delete h2_BTaggingEff_Denom_b;
    delete h2_BTaggingEff_Denom_c;
@@ -2269,6 +2322,8 @@ for (int f=0;f<4;f++){
    delete h2_FFvsRegion_eee;
    delete h2_FFvsRegion_emul;
    delete h2_FFvsRegion_mumumu;
+    
+   delete h2_lep1Pt_e;
     
   file_out.Close() ;
 }

@@ -134,7 +134,7 @@ def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", year=
     pad1.SetLogy(ROOT.kFALSE)
 
     y_min=0
-    y_max=1.6*hists[0].GetMaximum()
+    y_max=1.6*hs.GetStack().Last().GetMaximum()
     dummy.SetMarkerStyle(20)
     dummy.SetMarkerSize(1.2)
     dummy.SetTitle("")
@@ -458,10 +458,10 @@ variables=["lep1Pt","lep1Eta","lep1Phi","lep2Pt","lep2Eta","lep2Phi","lep3Pt","l
 #variables=["lep1Pt"]
 variablesName=["Leading lepton p_{T} [GeV]","Leading lepton #eta","Leading lepton #varphi","2nd-Leading lepton p_{T} [GeV]","2nd-Leading lepton #eta","2nd-Leading lepton #varphi","3rd-Leading lepton p_{T} [GeV]","3rd-Leading lepton #eta","3rd-Leading lepton #varphi","cLFV electron p_{T} [GeV]","cLFV electron #eta","cLFV electron #varphi","cLFV muon p_{T} [GeV]","cLFV muon #eta","cLFV muon #varphi","Bachelor lepton p_{T} [GeV]","Bachelor lepton #eta","Bachelor lepton #varphi","Standard top mass [GeV]","M(ll) [GeV]","p_{T}(ll) [GeV]","#Delta R(ll)","#Delta #varphi(ll)","Leading jet p_{T} [GeV]","Leading jet #eta","Leading jet #varphi","Number of jets","Number of b-tagged jets","MET [GeV]","#varphi(MET)","Number of vertices", "M(ll) (OSSF) [GeV]", "cLFV top mass [GeV]"]
 
-FFregions=["lllMetl20","lllMetg20Jetgeq2B2"]
-FFvariables=["E2Pt","E3Pt","Mu2Pt","Mu3Pt","EPt","MuPt"]
-FFvariablesName=["2nd Electron p_{T} [GeV]","3rd Eletron p_{T} [GeV]","2nd Muon p_{T} [GeV]","3rd Muon p_{T} [GeV]","Electron p_{T} [GeV]","Muon p_{T} [GeV]",]
-FF=["MR","antiMR","AR"]
+FFregions=["lll", "lllMetl20", "lllMetg20","lllOnZ","lllOffZ","lllMetg20B1"]
+FFvariables=["FakeableEPt","FakeableMuPt","TightEPt","TightMuPt","AntiEPt","AntiMuPt"]
+FFvariablesName=["Fakeable Electron p_{T} [GeV]","Fakeable Muon p_{T} [GeV]","Tight Electron p_{T} [GeV]","Tight Muon p_{T} [GeV]","anti-Electron p_{T} [GeV]","anti-Muon p_{T} [GeV]"]
+FF=["MR", "AR"]
 
 
 
@@ -479,6 +479,8 @@ HistAddress = ARGS.LOCATION
 Samples = ['data.root','TTV.root','WZ.root', 'ZZ.root', 'TTbar.root', 'others.root', 'SMEFTfr_ST_vector_emutu.root', 'SMEFTfr_TT_vector_emutu.root']
 SamplesName = ['data','TTV','WZ', 'ZZ', 'TTbar', 'others', 'ST_vector_emutu', 'TT_vector_emutu']
 SamplesNameLatex = ['data', 'TTV', 'WZ', 'ZZ', 'TTbar', 'others', 'ST\_vector\_emutu', 'TT\_vector\_emutu']
+
+SamplesNameFF = ['data','TTV','WZ', 'ZZ', 'Nonprompt Electron', 'Nonprompt Muon', 'ST_vector_emutu', 'TT_vector_emutu']
 
 colors =  [ROOT.kBlack,ROOT.kYellow,ROOT.kGreen,ROOT.kBlue-3,ROOT.kRed-4,ROOT.kOrange-3, ROOT.kOrange-6, ROOT.kCyan-6]
 
@@ -517,6 +519,38 @@ for numyear, nameyear in enumerate(year):
                         HH.append(Hists[numyear][f][numch][numreg][numvar])
 
 #                stackPlots(HH, HHsignal, SamplesName, namech, namereg, nameyear,namevar,variablesName[numvar])
+
+#HH1=[]
+#HHsignal1=[]
+#
+#HHsignal1.append(Hists[0][6][2][2][0])
+#HHsignal1.append(Hists[0][7][2][2][0])
+#
+#Nonpromp = []
+#Nonpromp.append(ROOT.TFile.Open('nonprompt.root'))
+#
+#f_e = 'fake_e'
+#f_mu = 'fake_mu'
+#
+#h_fake_e=Nonpromp[0].Get(f_e)
+#h_fake_mu=Nonpromp[0].Get(f_mu)
+#
+#h_fake_e.SetFillColor(colors[4])
+#h_fake_e.SetLineColor(colors[4])
+#
+#h_fake_mu.SetFillColor(colors[5])
+#h_fake_mu.SetLineColor(colors[5])
+#
+#HH1.append(Hists[0][0][2][0][0])
+#HH1.append(Hists[0][1][2][0][0])
+#HH1.append(Hists[0][2][2][0][0])
+#HH1.append(Hists[0][3][2][0][0])
+#HH1.append(h_fake_e)
+#HH1.append(h_fake_mu)
+#
+#stackPlots(HH1, HHsignal1, SamplesNameFF, channels[2], regions[0], year[0],variables[0],variablesName[0])
+
+
 
 ### Fake Factor study
 HistsFF = []
@@ -558,6 +592,73 @@ for numyear, nameyear in enumerate(year):
                             HHFF.append(HistsFF[numyear][f][numf][numch][numreg][numvar])
                 
                     stackPlotsFF(HHFF, HHsignalFF, SamplesName, namef, namech, namereg, nameyear,namevar,FFvariablesName[numvar])
+
+for numreg, namereg in enumerate(FFregions):
+    for numch, namech in enumerate(channels):
+        x=""
+        if (numreg == 0) and (numch == 0):
+           x="("
+        if (numreg == (len(FFregions)-1)) and (numch == (len(channels)-1)):
+           x=")"
+        ROOT.gStyle.SetPaintTextFormat("7.3f")
+        c = ROOT.TCanvas("c","c",600,600)
+        lt = ROOT.TLatex()
+        c.Divide(2,2)
+        HHFakeableE = HistsFF[0][0][0][numch][numreg][0].Clone()
+        HHFakeableMu = HistsFF[0][0][0][numch][numreg][1].Clone()
+        HHTightE = HistsFF[0][0][0][numch][numreg][2].Clone()
+        HHTightMu = HistsFF[0][0][0][numch][numreg][3].Clone()
+        for f in range(1,len(Samples)-4): # subtracted by nonpromt contribution
+            HHFakeableE.Add(HistsFF[0][f][0][numch][numreg][0],-1)
+            HHFakeableMu.Add(HistsFF[0][f][0][numch][numreg][1],-1)
+            HHTightE.Add(HistsFF[0][f][0][numch][numreg][2],-1)
+            HHTightMu.Add(HistsFF[0][f][0][numch][numreg][3],-1)
+        FR_E = HHTightE.Clone()
+        FR_E.SetTitle("")
+        FR_E.GetXaxis().SetNoExponent()
+        FR_E.SetName("FR_E_"+namech+namereg)
+        FR_E.GetYaxis().SetTitle("Fake Rate")
+        FR_E.GetXaxis().SetTitle("Electron p_{T} [GeV]")
+        FR_E.Divide(HHTightE, HHFakeableE, 1.0, 1.0, "B") # FR=Tight/Fakeable
+        c.cd(1)
+        FR_E.Draw("text0")
+        FR_E.SetAxisRange(0,1,"Y")
+        lt.DrawLatexNDC(0.2,0.8,namech+" channel "+namereg)
+        FR_Mu = HHTightMu.Clone()
+        FR_Mu.SetTitle("")
+        FR_Mu.GetXaxis().SetNoExponent()
+        FR_Mu.SetName("FR_Mu_"+namech+namereg)
+        FR_Mu.GetYaxis().SetTitle("Fake Rate")
+        FR_Mu.GetXaxis().SetTitle("Muon p_{T} [GeV]")
+        FR_Mu.Divide(HHTightMu, HHFakeableMu, 1.0, 1.0, "B")
+        c.cd(2)
+        FR_Mu.Draw("text0")
+        FR_Mu.SetAxisRange(0,1,"Y")
+        lt.DrawLatexNDC(0.2,0.8,namech+" channel "+namereg)
+        HHFakeableE.Add(HHTightE,-1)  # FF=Tight/(Fakeable-Tight)
+        FF_E = FR_E.Clone()
+        FF_E.SetTitle("")
+        FF_E.SetName("FF_E_"+namech+namereg)
+        FF_E.GetYaxis().SetTitle("Fake Factor")
+        FF_E.GetXaxis().SetTitle("Electron p_{T} [GeV]")
+        FF_E.Divide(HHTightE, HHFakeableE, 1.0, 1.0, "B")
+        c.cd(3)
+        FF_E.Draw("text0")
+        FF_E.SetAxisRange(0,1,"Y")
+        lt.DrawLatexNDC(0.2,0.8,namech+" channel "+namereg)
+        HHFakeableMu.Add(HHTightMu,-1)
+        FF_Mu = FR_Mu.Clone()
+        FF_Mu.SetTitle("")
+        FF_Mu.SetName("FF_Mu_"+namech+namereg)
+        FF_Mu.GetYaxis().SetTitle("Fake Factor")
+        FF_Mu.GetXaxis().SetTitle("Muon p_{T} [GeV]")
+        FF_Mu.Divide(HHTightMu, HHFakeableMu, 1.0, 1.0, "B")
+        c.cd(4)
+        FF_Mu.Draw("text0")
+        FF_Mu.SetAxisRange(0,1,"Y")
+        lt.DrawLatexNDC(0.2,0.8,namech+" channel "+namereg)
+        c.Print("FakeRateAndFakeFactor.pdf"+x,"pdf")
+
 
 le = '\\documentclass{article}' + "\n"
 le += '\\usepackage{rotating}' + "\n"
