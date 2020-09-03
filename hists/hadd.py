@@ -40,7 +40,8 @@ if data_2018:
 addedFilesData = {"2017": []}
 addedFilesMc = {"2017": []}
 addedFilesTTV = {"2017": []}
-addedFilesVV = {"2017": []}
+addedFilesWZ = {"2017": []}
+addedFilesZZ = {"2017": []}
 addedFilesTTbar = {"2017": []}
 
 for key, value in SAMPLES.items():
@@ -51,11 +52,13 @@ for key, value in SAMPLES.items():
     hadd='hadd ' + year + '/' + key + '.root '
     if value[1]=='data':
         addedFilesData[year].append( year + '/' + key + '.root ')
-    elif ('TTW' in key) or ('TTZ' in  key):
+    elif ('TTWJetsToLNu' in key) or ('TTZToLLNuNu' in  key):
         addedFilesTTV[year].append(  year + '/' + key + '.root ')
-    elif ('WW' in key) or ('WZ' in  key) or ('ZZ' in  key):
-        addedFilesVV[year].append(  year + '/' + key + '.root ')
-    elif ('TTTo' in key):
+    elif ('WZTo3LNu' in key):
+        addedFilesWZ[year].append(  year + '/' + key + '.root ')
+    elif ('ZZTo4L' in key):
+        addedFilesZZ[year].append(  year + '/' + key + '.root ')
+    elif ('TTTo2L2Nu' in key):
         addedFilesTTbar[year].append(  year + '/' + key + '.root ')
     elif ('SMEFTfr' not in key):
         addedFilesMc[year].append(  year + '/' + key + '.root ')
@@ -74,7 +77,8 @@ for key, value in SAMPLES.items():
 os.system('rm *_data.root')
 os.system('rm *_others.root')
 os.system('rm *_TTV.root')
-os.system('rm *_VV.root')
+os.system('rm *_WZ.root')
+os.system('rm *_ZZ.root')
 os.system('rm *_TTbar.root')
 #hadddata_2016 ='hadd 2016_data' + '.root ' + ' '.join(addedFilesData['2016'])
 hadddata_2017 ='hadd 2017_data' + '.root ' + ' '.join(addedFilesData['2017'])
@@ -84,7 +88,8 @@ hadddata_2017 ='hadd 2017_data' + '.root ' + ' '.join(addedFilesData['2017'])
 haddmc_2017 ='hadd 2017_others' + '.root ' + ' '.join(addedFilesMc['2017'])
 #haddmc_2018 ='hadd 2018_others' + '.root ' + ' '.join(addedFilesMc['2018'])
 haddTTV_2017 ='hadd 2017_TTV' + '.root ' + ' '.join(addedFilesTTV['2017'])
-haddVV_2017 ='hadd 2017_VV' + '.root ' + ' '.join(addedFilesVV['2017'])
+haddWZ_2017 ='hadd 2017_WZ' + '.root ' + ' '.join(addedFilesWZ['2017'])
+haddZZ_2017 ='hadd 2017_ZZ' + '.root ' + ' '.join(addedFilesZZ['2017'])
 haddTTbar_2017 ='hadd 2017_TTbar' + '.root ' + ' '.join(addedFilesTTbar['2017'])
 
 #os.system(haddmc_2016)
@@ -95,7 +100,8 @@ os.system(haddmc_2017)
 os.system(hadddata_2017)
 #os.system(hadddata_2018)
 os.system(haddTTV_2017)
-os.system(haddVV_2017)
+os.system(haddWZ_2017)
+os.system(haddZZ_2017)
 os.system(haddTTbar_2017)
 
 #os.system('rm *_DY.root')
