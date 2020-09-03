@@ -899,8 +899,8 @@ for (int f=0;f<2;f++){
   else{
   HistsAR1[ch][2][0]->Fill((*selectedLeptons)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
   HistsAR1[ch][2][1]->Fill((*selectedLeptons)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
-  if(selectedJets->size()>0) HistsAR1[ch][0][2]->Fill((*selectedJets)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
-  if(selectedJets->size()>0) HistsAR1[ch][0][3]->Fill((*selectedJets)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR1[ch][2][2]->Fill((*selectedJets)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR1[ch][2][3]->Fill((*selectedJets)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
   HistsAR1[ch][2][4]->Fill(selectedJets->size(),(*selectedLeptons)[anti_index]->pt_,weight_lepB);
   HistsAR1[ch][2][5]->Fill(nbjet,(*selectedLeptons)[anti_index]->pt_,weight_lepB);
   HistsAR1[ch][2][6]->Fill(MET_FinalCollection_Pt,(*selectedLeptons)[anti_index]->pt_,weight_lep);
