@@ -18,7 +18,7 @@ import argparse
 TGaxis.SetMaxDigits(2)
 
 
-def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", year='2017', var="sample", varname="v"):
+def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", eta = "eta", year='2017', var="sample", varname="v"):
     ff='FakeFactorStudy'
     mr='MR'
     if not os.path.exists(ff):
@@ -29,6 +29,8 @@ def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", year=
        os.makedirs(ff + '/' + mr + '/' + ch)
     if not os.path.exists(ff + '/' + mr + '/' + ch +'/'+reg):
        os.makedirs(ff + '/' + mr + '/' + ch +'/'+reg)
+    if not os.path.exists(ff + '/' + mr + '/' + ch +'/'+reg +'/'+eta):
+       os.makedirs(ff + '/' + mr + '/' + ch +'/'+reg +'/'+eta)
     hs = ROOT.THStack("hs","")
     for num in range(len(hists)):
         hists[num].SetBinContent(hists[num].GetXaxis().GetNbins(), hists[num].GetBinContent(hists[num].GetXaxis().GetNbins()) + hists[num].GetBinContent(hists[num].GetXaxis().GetNbins()+1))
@@ -72,8 +74,8 @@ def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", year=
     pad1.SetLogy(ROOT.kFALSE)
 
     y_min=0
-    y_max=1.6*hs.GetStack().Last().GetMaximum()
-#y_max=1.6*dummy.GetMaximum()
+#y_max=1.6*hs.GetStack().Last().GetMaximum()
+    y_max=1.6*dummy.GetMaximum()
     dummy.SetMarkerStyle(20)
     dummy.SetMarkerSize(1.2)
     dummy.SetTitle("")
@@ -111,7 +113,7 @@ def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", year=
     Label_lumi.SetNDC()
     Label_lumi.SetTextFont(42)
     Label_lumi.Draw("same")
-    Label_channel = ROOT.TLatex(0.2,0.8,year +" / "+ch+" ("+reg+")")
+    Label_channel = ROOT.TLatex(0.2,0.8,year +" / "+ch+" ("+reg+" "+eta+")")
     Label_channel.SetNDC()
     Label_channel.SetTextFont(42)
     Label_channel.Draw("same")
@@ -166,7 +168,7 @@ def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", year=
     dummy_ratio.Draw()
     dummy_ratio.Draw("AXISSAMEY+")
     dummy_ratio.Draw("AXISSAMEX+")
-    canvas.Print(ff + '/' + mr + '/' + ch +'/'+reg+'/'+var + ".png")
+    canvas.Print(ff + '/' + mr + '/' + ch +'/'+ reg +'/'+ eta +'/'+var + ".png")
     del canvas
     gc.collect()
 
@@ -322,13 +324,14 @@ def stackPlotsFF(hists, SignalHists, Fnames, f="FFregion", ch = "channel", reg =
     gc.collect()
 
 year=['2017']
-regions=["ll","llMetl30","llMetl30Jetg0","llJetg1Bl2"]
+regions=["ll","llMetl30","llMetl30Jetg0","llJetg1Bl2","llMetg30Bg0"]
 channels=["MR_e","MR_mu"];
+etaregs=["barrel","transition","endcap"]
 variables=["FlepPt","FlepEta","FlepPhi","TlepPt","TlepEta","TlepPhi"]
 variablesName=["Fakeable lepton p_{T} [GeV]", "Fakeable lepton #eta", "Fakeable lepton #phi", "Tight lepton p_{T} [GeV]", "Tight lepton #eta", "Tight lepton #phi"]
 
 
-FF=["CR","AR1","AR2"]
+FF=["VR","AR1","AR2"]
 channelsFF=["eee","mumumu"];
 regionsFF=["lll","lllMetl30","lllMetg30"]
 variablesFF=["lep1Pt","lep1Eta","jet1Pt","jet1Eta","njet","nbjet","Met","nVtx"]
@@ -367,14 +370,17 @@ for numyear, nameyear in enumerate(year):
             l2=[]
             for numreg, namereg in enumerate(regions):
                 l3=[]
-                for numvar, namevar in enumerate(variables):
-                    h= Files[f].Get(namech + '_' + namereg + '_' + namevar)
-                    h.SetFillColor(colors[f])
-                    if 'SMEFTfr' not in Samples[f]:
-                        h.SetLineColor(colors[0])
-                    else:
-                        h.SetLineColor(colors[f])
-                    l3.append(h)
+                for numeta, nameeta in enumerate(etaregs):
+                    l4=[]
+                    for numvar, namevar in enumerate(variables):
+                        h= Files[f].Get(namech + '_' + namereg + '_' + nameeta + '_' + namevar)
+                        h.SetFillColor(colors[f])
+                        if 'SMEFTfr' not in Samples[f]:
+                            h.SetLineColor(colors[0])
+                        else:
+                            h.SetLineColor(colors[f])
+                        l4.append(h)
+                    l3.append(l4)
                 l2.append(l3)
             l1.append(l2)
         l0.append(l1)
@@ -383,17 +389,18 @@ for numyear, nameyear in enumerate(year):
 for numyear, nameyear in enumerate(year):
     for numch, namech in enumerate(channels):
         for numreg, namereg in enumerate(regions):
-            for numvar, namevar in enumerate(variables):
-                HH=[]
-                HHsignal=[]
-                for f in range(len(Samples)):
-                    if 'SMEFTfr' in Samples[f]:
-                        HHsignal.append(Hists[numyear][f][numch][numreg][numvar])
-                    else:
-                        HH.append(Hists[numyear][f][numch][numreg][numvar])
-                stackPlots(HH, HHsignal, SamplesName, namech, namereg, nameyear,namevar,variablesName[numvar])
+            for numeta, nameeta in enumerate(etaregs):
+                for numvar, namevar in enumerate(variables):
+                    HH=[]
+                    HHsignal=[]
+                    for f in range(len(Samples)):
+                        if 'SMEFTfr' in Samples[f]:
+                            HHsignal.append(Hists[numyear][f][numch][numreg][numeta][numvar])
+                        else:
+                            HH.append(Hists[numyear][f][numch][numreg][numeta][numvar])
+                    stackPlots(HH, HHsignal, SamplesName, namech, namereg, nameeta, nameyear,namevar,variablesName[numvar])
 
-## CR, AR1 and AR2
+## VR, AR1 and AR2
 HistsFF = []
 for numyear, nameyear in enumerate(year):
     l0=[]
@@ -437,79 +444,48 @@ for numyear, nameyear in enumerate(year):
 
                     stackPlotsFF(HHFF, HHsignalFF, SamplesName, namef, namech, namereg, nameyear,namevar,variablesNameFF[numvar])
 
-ROOT.gStyle.SetPaintTextFormat("7.3f")
+ROOT.gStyle.SetPaintTextFormat("15.3f")
 ## FF calculation
 FF1D = []
+ff='FakeFactorStudy'
+c = ROOT.TCanvas("c","c",600,800)
+c.Divide(2,3)
 for numreg, namereg in enumerate(regions):
     l0=[]
+    x=""
+    if (numreg == 0):
+        x="("
+    if (numreg == (len(regions)-1)):
+        x=")"
     for numch, namech in enumerate(channels):
-        x=""
-        if (numreg == 0) and (numch == 0):
-           x="("
-        if (numreg == (len(regions)-1)) and (numch == (len(channels)-1)):
-           x=")"
-        c = ROOT.TCanvas("c","c",600,600)
-        lt = ROOT.TLatex()
-        c.Divide(2,2)
-        HHFakeablePt = Hists[0][0][numch][numreg][0].Clone()
-        HHFakeableEta = Hists[0][0][numch][numreg][1].Clone()
-        HHTightPt = Hists[0][0][numch][numreg][3].Clone()
-        HHTightEta = Hists[0][0][numch][numreg][4].Clone()
-        for f in range(1,len(Samples)-4): # subtracted by promt contribution
-            HHFakeablePt.Add(Hists[0][f][numch][numreg][0],-1)
-            HHFakeableEta.Add(Hists[0][f][numch][numreg][1],-1)
-            HHTightPt.Add(Hists[0][f][numch][numreg][3],-1)
-            HHTightEta.Add(Hists[0][f][numch][numreg][4],-1)
-        FR_Pt = HHFakeablePt.Clone()
-        FR_Pt.SetTitle("")
-        FR_Pt.GetXaxis().SetNoExponent()
-        FR_Pt.SetName("FR_Pt_"+namech+namereg)
-        FR_Pt.GetYaxis().SetTitle("Fake Rate")
-        FR_Pt.GetXaxis().SetTitle("Lepton p_{T} [GeV]")
-        FR_Pt.Divide(HHTightPt, HHFakeablePt, 1.0, 1.0, "B") # FR=Tight/Fakeable
-        c.cd(1)
-        FR_Pt.Draw("text0")
-        FR_Pt.SetAxisRange(0,2.5,"Y")
-        lt.DrawLatexNDC(0.2,0.8,namech+" / "+namereg)
-        FR_Eta = HHFakeableEta.Clone()
-        FR_Eta.SetTitle("")
-        FR_Eta.GetXaxis().SetNoExponent()
-        FR_Eta.SetName("FR_Eta_"+namech+namereg)
-        FR_Eta.GetYaxis().SetTitle("Fake Rate")
-        FR_Eta.GetXaxis().SetTitle("Lepton #eta")
-        FR_Eta.Divide(HHTightEta, HHFakeableEta, 1.0, 1.0, "B")
-        c.cd(2)
-        FR_Eta.Draw("text0")
-        FR_Eta.SetAxisRange(0,2.5,"Y")
-        lt.DrawLatexNDC(0.2,0.8,namech+" / "+namereg)
-        HHFakeablePt.Add(HHTightPt,-1)  # FF=Tight/(Fakeable-Tight)
-        FF_Pt = FR_Pt.Clone()
-        FF_Pt.SetTitle("")
-        FF_Pt.SetName("FF_Pt_"+namech+namereg)
-        FF_Pt.GetYaxis().SetTitle("Fake Factor")
-        FF_Pt.GetXaxis().SetTitle("Lepton p_{T} [GeV]")
-        FF_Pt.Divide(HHTightPt, HHFakeablePt, 1.0, 1.0, "B")
-        c.cd(3)
-        FF_Pt.Draw("text0")
-        FF_Pt.SetAxisRange(0,2.5,"Y")
-        lt.DrawLatexNDC(0.2,0.8,namech+" / "+namereg)
-        HHFakeableEta.Add(HHTightEta,-1)
-        FF_Eta = FR_Eta.Clone()
-        FF_Eta.SetTitle("")
-        FF_Eta.SetName("FF_Eta_"+namech+namereg)
-        FF_Eta.GetYaxis().SetTitle("Fake Factor")
-        FF_Eta.GetXaxis().SetTitle("Lepton #eta")
-        FF_Eta.Divide(HHTightEta, HHFakeableEta, 1.0, 1.0, "B")
-        c.cd(4)
-        FF_Eta.Draw("text0")
-        FF_Eta.SetAxisRange(0,2.5,"Y")
-        lt.DrawLatexNDC(0.2,0.8,namech+" / "+namereg)
-        c.Print("FakeRateAndFakeFactor.pdf"+x,"pdf")
-        l0.append(FF_Pt)
+        l1=[]
+        for numeta, nameeta in enumerate(etaregs):
+            lt = ROOT.TLatex()
+            HHFakeablePt = Hists[0][0][numch][numreg][numeta][0].Clone()
+            HHTightPt = Hists[0][0][numch][numreg][numeta][3].Clone()
+            for f in range(1,len(Samples)-4): # subtracted by promt contribution
+                HHFakeablePt.Add(Hists[0][f][numch][numreg][numeta][0],-1)
+                HHTightPt.Add(Hists[0][f][numch][numreg][numeta][3],-1)
+            HHFakeablePt.Add(HHTightPt,-1)  # FF=Tight/(Fakeable-Tight)
+            FF_Pt = HHFakeablePt.Clone()
+            FF_Pt.SetTitle("")
+            FF_Pt.SetName("FF_Pt_"+namech+namereg+nameeta)
+            FF_Pt.GetXaxis().SetNoExponent()
+            FF_Pt.GetYaxis().SetNoExponent()
+            FF_Pt.GetYaxis().SetTitle("Fake Factor")
+            FF_Pt.GetXaxis().SetTitle("Lepton p_{T} [GeV]")
+            FF_Pt.Divide(HHTightPt, HHFakeablePt, 1.0, 1.0, "B")
+            c.cd(2*numeta+numch+1)
+            FF_Pt.Draw("text0")
+            FF_Pt.SetAxisRange(0,10,"Y")
+            lt.DrawLatexNDC(0.2,0.8,namech+" / "+namereg+" / "+nameeta)
+            l1.append(FF_Pt)
+        l0.append(l1)
+    if not os.path.exists(ff):
+           os.makedirs(ff)
+    c.Print(ff+"/FakeFactor.pdf"+x,"pdf")
     FF1D.append(l0)
 
-d = ROOT.TCanvas("d","d",800,600)
-ROOT.gStyle.SetPaintTextFormat("7.0f")
 # Prepare 2D and 3D AR histograms
 HistsAR1 = []
 HistsAR2 = []
@@ -529,10 +505,18 @@ for numyear, nameyear in enumerate(year):
                 l3AR1=[]
                 l3AR2=[]
                 for numvar, namevar in enumerate(variablesFF):
-                    hAR1= Files[f].Get('AR1_2D_' + namech + '_' + namereg + '_' + namevar)
-                    hAR2= Files[f].Get('AR2_3D_' + namech + '_' + namereg + '_' + namevar)
-                    l3AR1.append(hAR1)
-                    l3AR2.append(hAR2)
+                    l4AR1=[]
+                    l4AR2=[]
+                    for numeta1, nameeta1 in enumerate(etaregs):
+                        hAR1= Files[f].Get('AR1_2D_' + namech + '_' + namereg + '_' + nameeta1 + '_' + namevar)
+                        l4AR1.append(hAR1)
+                        l5AR2=[]
+                        for numeta2, nameeta2 in enumerate(etaregs):
+                            hAR2= Files[f].Get('AR2_3D_' + namech + '_' + namereg + '_' + nameeta1 + '_' + nameeta2 + '_' + namevar)
+                            l5AR2.append(hAR2)
+                        l4AR2.append(l5AR2)
+                    l3AR1.append(l4AR1)
+                    l3AR2.append(l4AR2)
                 l2AR1.append(l3AR1)
                 l2AR2.append(l3AR2)
             l1AR1.append(l2AR1)
@@ -542,8 +526,10 @@ for numyear, nameyear in enumerate(year):
     HistsAR1.append(l0AR1)
     HistsAR2.append(l0AR2)
 
-HistsAR1[0][0][1][1][0].Draw("text0")
-d.Print("test.pdf","pdf")
+#d = ROOT.TCanvas("d","d",800,600)
+#ROOT.gStyle.SetPaintTextFormat("7.0f")
+#HistsAR1[0][0][1][1][0][0].Draw("text0")
+#d.Print("test.pdf","pdf")
 
 #Prepare 2D and 3D FF
 FF2D=[]
@@ -554,55 +540,76 @@ for numreg, namereg in enumerate(regions):
     for numch, namech in enumerate(channels):
         l12D=[]
         l13D=[]
-        tmp_FF=FF1D[numreg][numch].Clone()
         for numvar, namevar in enumerate(variablesFF):
-            tmp_FF2D=HistsAR1[0][0][0][0][numvar].Clone()
-            tmp_FF2D.Reset("ICE")
-            tmp_FF3D=HistsAR2[0][0][0][0][numvar].Clone()
-            tmp_FF3D.Reset("ICE")
-            for ithbin in range (1,tmp_FF2D.GetNbinsX()+1):
-                for jthbin in range (1,tmp_FF2D.GetNbinsY()+1):
-                    tmp_FF2D.SetBinContent(ithbin,jthbin,tmp_FF.GetBinContent(jthbin))
-                    tmp_FF2D.SetBinError(ithbin,jthbin,tmp_FF.GetBinError(jthbin))
-                    for kthbin in range (1,tmp_FF3D.GetNbinsZ()+1):
-                        tmp_FF3D.SetBinContent(ithbin,jthbin,kthbin,tmp_FF.GetBinContent(jthbin)*tmp_FF.GetBinContent(kthbin))
-                        tmp_FF3D.SetBinError(ithbin,jthbin,kthbin,math.sqrt(tmp_FF.GetBinError(jthbin)**2+tmp_FF.GetBinError(kthbin)**2))
-            l12D.append(tmp_FF2D)
-            l13D.append(tmp_FF3D)
+            l22D=[]
+            l23D=[]
+            for numeta1, nameeta1 in enumerate(etaregs):
+                tmp_FF=FF1D[numreg][numch][numeta1].Clone()
+                tmp_FF2D=HistsAR1[0][0][0][0][numvar][0].Clone()
+                tmp_FF2D.Reset("ICE")
+                tmp_FF3D=HistsAR2[0][0][0][0][numvar][0][0].Clone()
+                tmp_FF3D.Reset("ICE")
+                for ithbin in range (1,tmp_FF2D.GetNbinsX()+1):
+                    for jthbin in range (1,tmp_FF2D.GetNbinsY()+1):
+                        tmp_FF2D.SetBinContent(ithbin,jthbin,tmp_FF.GetBinContent(jthbin))
+                        tmp_FF2D.SetBinError(ithbin,jthbin,tmp_FF.GetBinError(jthbin))
+                        for kthbin in range (1,tmp_FF3D.GetNbinsZ()+1):
+                            tmp_FF3D.SetBinContent(ithbin,jthbin,kthbin,tmp_FF.GetBinContent(jthbin)*tmp_FF.GetBinContent(kthbin))
+                            tmp_FF3D.SetBinError(ithbin,jthbin,kthbin,math.sqrt(tmp_FF.GetBinError(jthbin)**2+tmp_FF.GetBinError(kthbin)**2))
+                l22D.append(tmp_FF2D)
+                l33D=[]
+                for numeta2, nameeta2 in enumerate(etaregs):
+                    tmp_FF_copy=FF1D[numreg][numch][numeta2].Clone()
+                    tmp_FF3D_copy=tmp_FF3D.Clone()
+                    tmp_FF3D_copy.Reset("ICE")
+                    for ithbin in range (1,tmp_FF3D.GetNbinsX()+1):
+                        for jthbin in range (1,tmp_FF3D.GetNbinsY()+1):
+                            for kthbin in range (1,tmp_FF3D.GetNbinsZ()+1):
+                                tmp_FF3D_copy.SetBinContent(ithbin,jthbin,kthbin,tmp_FF_copy.GetBinContent(jthbin)*tmp_FF_copy.GetBinContent(kthbin))
+                                tmp_FF3D_copy.SetBinError(ithbin,jthbin,kthbin,math.sqrt(tmp_FF_copy.GetBinError(jthbin)**2+tmp_FF_copy.GetBinError(kthbin)**2))
+                    tmp_FF3D_Final=tmp_FF3D.Clone()
+                    tmp_FF3D_Final.Multiply(tmp_FF3D, tmp_FF3D_copy, 1.0, 1.0, "B")
+                    l33D.append(tmp_FF3D_Final)
+                l23D.append(l33D)
+            l12D.append(l22D)
+            l13D.append(l23D)
         l02D.append(l12D)
         l03D.append(l13D)
     FF2D.append(l02D)
     FF3D.append(l03D)
 
 # Start making stack plots
-MRreg = 3 # Pick your favorite FF MR reg
+MRreg = 4 # Pick your favorite FF MR reg
 for numch, namech in enumerate(channelsFF):
     for numreg, namereg in enumerate(regionsFF):
         for numvar, namevar in enumerate(variablesFF):
-            tmp_AR1=HistsAR1[0][0][numch][numreg][numvar].Clone()
-            tmp_AR2=HistsAR2[0][0][numch][numreg][numvar].Clone()
-            for f in range(1,len(Samples)-4): # subtracted by promt contribution
-                tmp_AR1.Add(HistsAR1[0][f][numch][numreg][numvar],-1)
-                tmp_AR2.Add(HistsAR2[0][f][numch][numreg][numvar],-1)
-            tmp_CR1=tmp_AR1.Clone()
-            tmp_CR1.Multiply(tmp_AR1, FF2D[MRreg][numch][numvar], 1.0, 1.0, "B")
-            tmp_CR2=tmp_AR2.Clone()
-            tmp_CR2.Multiply(tmp_AR2, FF3D[MRreg][numch][numvar], 1.0, 1.0, "B")
-            tmp_CR=HistsFF[0][0][0][0][0][numvar].Clone()
-            tmp_CR.Reset("ICE")
-            for ithbin in range (1,tmp_CR1.GetNbinsX()+1):
-                EventCounts=0#Nonprompt Contribution in CR
-                Error=0
-                for jthbin in range (1,tmp_CR1.GetNbinsY()+1):
-                    EventCounts=EventCounts+tmp_CR1.GetBinContent(ithbin,jthbin)
-                    Error=Error+(tmp_CR1.GetBinError(ithbin,jthbin))**2
-                    for kthbin in range (1,tmp_CR2.GetNbinsZ()+1):
-                        EventCounts=EventCounts-tmp_CR2.GetBinContent(ithbin,jthbin,kthbin)
-                        Error=Error+(tmp_CR2.GetBinError(ithbin,jthbin,kthbin))**2
-                tmp_CR.SetBinContent(ithbin,EventCounts)
-                tmp_CR.SetBinError(ithbin,math.sqrt(Error))
-            tmp_CR.SetFillColor(colors[5])
-            tmp_CR.SetLineColor(colors[0])
+            tmp_VR=HistsFF[0][0][0][0][0][numvar].Clone()
+            tmp_VR.Reset("ICE")
+            for numeta1, nameeta1 in enumerate(etaregs):
+                tmp_AR1=HistsAR1[0][0][numch][numreg][numvar][numeta1].Clone()
+                for f in range(1,len(Samples)-4): # subtracted by promt contribution
+                    tmp_AR1.Add(HistsAR1[0][f][numch][numreg][numvar][numeta1],-1)
+                tmp_VR1=tmp_AR1.Clone()
+                tmp_VR1.Multiply(tmp_AR1, FF2D[MRreg][numch][numvar][numeta1], 1.0, 1.0, "B")
+                for ithbin in range (1,tmp_VR1.GetNbinsX()+1):
+                    for jthbin in range (1,tmp_VR1.GetNbinsY()+1):
+                        if tmp_VR1.GetBinContent(ithbin,jthbin)>0:#Throw away negative numbers
+                           tmp_VR.SetBinContent(ithbin,tmp_VR.GetBinContent(ithbin)+tmp_VR1.GetBinContent(ithbin,jthbin))
+#                           tmp_VR.SetBinError(ithbin,math.sqrt(tmp_VR.GetBinError(ithbin)**2+tmp_VR1.GetBinContent(ithbin,jthbin)**2))
+                for numeta2, nameeta2 in enumerate(etaregs):
+                    tmp_AR2=HistsAR2[0][0][numch][numreg][numvar][numeta1][numeta2].Clone()
+                    for f in range(1,len(Samples)-4): # subtracted by promt contribution
+                        tmp_AR2.Add(HistsAR2[0][f][numch][numreg][numvar][numeta1][numeta2],-1)
+                    tmp_VR2=tmp_AR2.Clone()
+                    tmp_VR2.Multiply(tmp_AR2, FF3D[MRreg][numch][numvar][numeta1][numeta2], 1.0, 1.0, "B")
+                    for ithbin in range (1,tmp_VR2.GetNbinsX()+1):
+                        for jthbin in range (1,tmp_VR2.GetNbinsY()+1):
+                            for kthbin in range (1,tmp_VR2.GetNbinsZ()+1):
+                                if tmp_VR2.GetBinContent(ithbin,jthbin,kthbin)>0:
+                                   tmp_VR.SetBinContent(ithbin,tmp_VR.GetBinContent(ithbin)-tmp_VR2.GetBinContent(ithbin,jthbin,kthbin))
+#                                   tmp_VR.SetBinError(ithbin,math.sqrt(tmp_VR.GetBinError(ithbin)**2+tmp_VR1.GetBinContent(ithbin,jthbin,kthbin)**2))
+            tmp_VR.SetFillColor(colors[5])
+            tmp_VR.SetLineColor(colors[0])
             HHCorr=[]
             HHsignalCorr=[]
             for f in range(len(Samples)):
@@ -611,8 +618,8 @@ for numch, namech in enumerate(channelsFF):
                        HHsignalCorr.append(HistsFF[0][f][0][numch][numreg][numvar])
                    else:
                        HHCorr.append(HistsFF[0][f][0][numch][numreg][numvar])
-            HHCorr.append(tmp_CR)
-            namef='CR_DataDriven'
+            HHCorr.append(tmp_VR)
+            namef='VR_DataDriven'
             stackPlotsFF(HHCorr, HHsignalCorr, SamplesNameFF, namef, namech, namereg, year[0],namevar,variablesNameFF[numvar])
 
 
