@@ -84,7 +84,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
   typedef vector<Dim2> Dim3;
   typedef vector<Dim3> Dim4;
 
-  std::vector<TString> regions{"ll","llMetl30","llMetl30Jetg0","llJetg1Bl2","llMetg30Bg0"};
+  std::vector<TString> regions{"ll","llMetg20","llMetg20Jetgeq1Bleq1","llMetg20Jetgeq2Bleq1","llMetg20Bgeq1"};
   std::vector<TString> channels{"MR_e","MR_mu"};
   std::vector<TString> etaregs{"barrel","transition","endcap"};
   std::vector<TString> vars   {"FlepPt","FlepEta","FlepPhi","TlepPt","TlepEta","TlepPhi"};
@@ -92,8 +92,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
   std::vector<float> lowEdge  {0       ,-3       ,-4       ,0       ,-3       ,-4       };
   std::vector<float> highEdge {300     ,3        ,4        ,300     ,3        ,4        };
     
-  Double_t ptBinsFF[9] = {0., 25., 30., 40., 50., 65., 80., 100., 120.};
-  Double_t etaBinsFF[9] = {0., 0.3,  0.6, 0.9, 1.2, 1.5, 1.8, 2.1, 2.4};
+  Double_t ptBinsFF[8] = {20., 23., 27., 32., 38., 45., 65., 100.};
 
   Dim4 HistsMR(channels.size(),Dim3(regions.size(),Dim2(etaregs.size(),Dim1(vars.size()))));
   std::stringstream name;
@@ -104,7 +103,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
           for (int l=0;l<vars.size();++l){
             name<<channels[i]<<"_"<<regions[k]<<"_"<<etaregs[j]<<"_"<<vars[l];
             if (l==0||l==3){
-            h_test = new TH1F((name.str()).c_str(),(name.str()).c_str(),8,ptBinsFF);
+            h_test = new TH1F((name.str()).c_str(),(name.str()).c_str(),7,ptBinsFF);
             }
             else{
             h_test = new TH1F((name.str()).c_str(),(name.str()).c_str(),nbins[l],lowEdge[l],highEdge[l]);
@@ -119,11 +118,11 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
   }
 
  std::vector<TString> FF{"VR","AR1","AR2"};
- std::vector<TString> regionsFF{"lll","lllMetl30","lllMetg30"};
+ std::vector<TString> regionsFF{"lll","lllMetl20","lllMetg20","lllOnZ","lllOffZ","lllMetg20Jetgeq1Bleq1"};
  std::vector<TString> channelsFF{"eee","mumumu"};
  std::vector<TString> varsFF   {"lep1Pt","lep1Eta","jet1Pt","jet1Eta","njet","nbjet","Met","nVtx"};
- std::vector<int>    nbinsFF   {30      ,20       ,30      ,20       ,10    ,6      ,30   ,70};
- std::vector<float> lowEdgeFF  {0       ,-3       ,0       ,-3       ,0     ,0      ,0    ,0};
+ std::vector<int>    nbinsFF   {12      ,15       ,15      ,15       ,10    ,6      ,15   ,70};
+ std::vector<float> lowEdgeFF  {30      ,-3       ,30      ,-3       ,0     ,0      ,0    ,0};
  std::vector<float> highEdgeFF {300     ,3        ,300     ,3        ,10    ,6      ,210  ,70};
     
  Dim4 HistsFF(FF.size(),Dim3(channelsFF.size(),Dim2(regionsFF.size(),Dim1(varsFF.size()))));
@@ -168,14 +167,14 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
                  }
                  //Fill 2D/3D Histograms
                  name<<"AR1_2D_"<<channelsFF[i]<<"_"<<regionsFF[k]<<"_"<<etaregs[j]<<"_"<<varsFF[l];
-                 h2_test = new TH2F((name.str()).c_str(),(name.str()).c_str(),nbinsFF[l],BinArray,8,ptBinsFF);
+                 h2_test = new TH2F((name.str()).c_str(),(name.str()).c_str(),nbinsFF[l],BinArray,7,ptBinsFF);
                  h2_test->StatOverflows(kTRUE);
                  h2_test->Sumw2(kTRUE);
                  HistsAR1[i][k][j][l] = h2_test;
                  name.str("");
                  for (int m=0;m<etaregs.size();++m){
                      name<<"AR2_3D_"<<channelsFF[i]<<"_"<<regionsFF[k]<<"_"<<etaregs[j]<<"_"<<etaregs[m]<<"_"<<varsFF[l];
-                     h3_test = new TH3F((name.str()).c_str(),(name.str()).c_str(),nbinsFF[l],BinArray,8,ptBinsFF,8,ptBinsFF);
+                     h3_test = new TH3F((name.str()).c_str(),(name.str()).c_str(),nbinsFF[l],BinArray,7,ptBinsFF,7,ptBinsFF);
                      h3_test->StatOverflows(kTRUE);
                      h3_test->Sumw2(kTRUE);
                      HistsAR2[i][k][j][m][l] = h3_test;
@@ -636,7 +635,8 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
           if ((*mu_mc_index)[l]<0) muPtSFRochester = rc.kSmearMC((*mu_gt_charge)[l], (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l], (*mu_trackerLayersWithMeasurement)[l] , gRandom->Rndm(),0, 0);
       }
       if(muPtSFRochester * (*mu_gt_pt)[l] <20 || abs((*mu_gt_eta)[l]) > 2.4) continue;
-      if(!(*mu_CutBasedIdTight)[l]||(*mu_pfIsoDbCorrected04)[l] > 0.5) continue;
+      if(!(*mu_CutBasedIdMedium)[l]||(*mu_pfIsoDbCorrected04)[l] > 0.15) continue;
+      //if((*mu_pfIsoDbCorrected04)[l] > 0.15 && (*mu_pfIsoDbCorrected04)[l] < 0.25) continue;
       nLoose++;
       if (f==0){
           if (nTight==1){
@@ -645,10 +645,10 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
               if (data == "mc" && year == "2016") sf_Mu_ISO = sf_Mu_ISO * scale_factor(&sf_Mu_ISO_H, (*mu_gt_eta)[l], (*mu_gt_pt)[l],"");
               if (data == "mc" && year != "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, (*mu_gt_pt)[l], abs((*mu_gt_eta)[l]),"");
               if (data == "mc" && year != "2016") sf_Mu_ISO = sf_Mu_ISO * scale_factor(&sf_Mu_ISO_H, (*mu_gt_pt)[l], abs((*mu_gt_eta)[l]),"");
-              if ((*mu_pfIsoDbCorrected04)[l] < 0.15) isTight = true;
+              if ((*mu_MvaMedium)[l]) isTight = true;
               continue;
           }
-          if ((*mu_pfIsoDbCorrected04)[l] < 0.15){
+          if ((*mu_MvaMedium)[l]){
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
               (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
               if (data == "mc" && year == "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, (*mu_gt_eta)[l], (*mu_gt_pt)[l],"");
@@ -659,7 +659,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
           }
       }
       else{
-          if ((*mu_pfIsoDbCorrected04)[l] < 0.15){
+          if ((*mu_MvaMedium)[l]){
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
               (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
               if (data == "mc" && year == "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, (*mu_gt_eta)[l], (*mu_gt_pt)[l],"");
@@ -688,10 +688,10 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
          selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
          if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,(*gsf_sc_eta)[l],(*gsf_pt)[l],"");
          if (data == "mc") sf_Ele_ID = sf_Ele_ID * scale_factor(&sf_Ele_ID_H ,(*gsf_sc_eta)[l],(*gsf_pt)[l],"");
-         if ((*gsf_VID_mvaEleID_Fall17_iso_V2_wp80)[l]) isTight = true;
+         if ((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]) isTight = true;
          continue;
          }
-         if ((*gsf_VID_mvaEleID_Fall17_iso_V2_wp80)[l]){
+         if ((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]){
             selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
             (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
             if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,(*gsf_sc_eta)[l],(*gsf_pt)[l],"");
@@ -700,7 +700,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
          }
       }
       else{
-      if ((*gsf_VID_mvaEleID_Fall17_iso_V2_wp80)[l]){
+      if ((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]){
          selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
          (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
          if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,(*gsf_sc_eta)[l],(*gsf_pt)[l],"");
@@ -742,10 +742,10 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
              selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
              if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,(*gsf_sc_eta)[l],(*gsf_pt)[l],"");
              if (data == "mc") sf_Ele_ID = sf_Ele_ID * scale_factor(&sf_Ele_ID_H ,(*gsf_sc_eta)[l],(*gsf_pt)[l],"");
-             if ((*gsf_VID_mvaEleID_Fall17_iso_V2_wp80)[l]) isTight = true;
+             if ((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]) isTight = true;
              continue;
           }
-          if ((*gsf_VID_mvaEleID_Fall17_iso_V2_wp80)[l]){
+          if ((*gsf_VID_cutBasedElectronID_Fall17_94X_V2_tight)[l]){
              selectedLeptons->push_back(new lepton_candidate(elePt,(*gsf_eta)[l],(*gsf_phi)[l],(*gsf_charge)[l],l,1));
              (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
              if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,(*gsf_sc_eta)[l],(*gsf_pt)[l],"");
@@ -763,17 +763,18 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
               if ((*mu_mc_index)[l]<0) muPtSFRochester = rc.kSmearMC((*mu_gt_charge)[l], (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l], (*mu_trackerLayersWithMeasurement)[l] , gRandom->Rndm(),0, 0);
           }
           if(muPtSFRochester * (*mu_gt_pt)[l] <20 || abs((*mu_gt_eta)[l]) > 2.4) continue;
-          if(!(*mu_CutBasedIdTight)[l]||(*mu_pfIsoDbCorrected04)[l] > 0.5) continue;
+          if(!(*mu_CutBasedIdMedium)[l]||(*mu_pfIsoDbCorrected04)[l] > 0.15) continue;
+          //if((*mu_pfIsoDbCorrected04)[l] > 0.15 && (*mu_pfIsoDbCorrected04)[l] < 0.25) continue;
           if (nTight==1){
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
               if (data == "mc" && year == "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, (*mu_gt_eta)[l], (*mu_gt_pt)[l],"");
               if (data == "mc" && year == "2016") sf_Mu_ISO = sf_Mu_ISO * scale_factor(&sf_Mu_ISO_H, (*mu_gt_eta)[l], (*mu_gt_pt)[l],"");
               if (data == "mc" && year != "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, (*mu_gt_pt)[l], abs((*mu_gt_eta)[l]),"");
               if (data == "mc" && year != "2016") sf_Mu_ISO = sf_Mu_ISO * scale_factor(&sf_Mu_ISO_H, (*mu_gt_pt)[l], abs((*mu_gt_eta)[l]),"");
-              if ((*mu_pfIsoDbCorrected04)[l] < 0.15) isTight = true;
+              if ((*mu_MvaMedium)[l]) isTight = true;
               continue;
           }
-          if ((*mu_pfIsoDbCorrected04)[l] < 0.15){
+          if ((*mu_MvaMedium)[l]){
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * (*mu_gt_pt)[l],(*mu_gt_eta)[l],(*mu_gt_phi)[l],(*mu_gt_charge)[l],l,10));
               (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
               if (data == "mc" && year == "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, (*mu_gt_eta)[l], (*mu_gt_pt)[l],"");
@@ -785,12 +786,15 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
       }
     }
     }
-//      if (selectedLeptons->size()>=2){
-//          if (((*selectedLeptons)[0]->charge_+(*selectedLeptons)[1]->charge_)==0){
-//              Zmass=((*selectedLeptons)[0]->p4_+(*selectedLeptons)[1]->p4_).M();
-//          }
-//      }
-//      if (Zmass>76&&Zmass<106) OnZ=true;
+      if (selectedLeptons->size()==3 && abs((*selectedLeptons)[0]->charge_+(*selectedLeptons)[1]->charge_+(*selectedLeptons)[2]->charge_)==1){
+          if (((*selectedLeptons)[0]->charge_+(*selectedLeptons)[1]->charge_)==0){
+              Zmass=((*selectedLeptons)[0]->p4_+(*selectedLeptons)[1]->p4_).M();
+          }
+          else{
+              Zmass=((*selectedLeptons)[0]->p4_+(*selectedLeptons)[2]->p4_).M();
+          }
+      }
+      if (Zmass>76&&Zmass<106) OnZ=true;
     sort(selectedLeptons->begin(), selectedLeptons->end(), ComparePtLep);
     nLeptonCut=f<1?2:3;
     if (selectedLeptons->size()==2){
@@ -842,6 +846,8 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
             etabin1=1;
         }
     }
+//    if(ch==1) etabin1=0;
+//    if(ch==1) etabin2=0;
       
     if (f==0){
        if ((*selectedLeptons)[0]->lep_ == 1 && !triggerPassSingleE) continue;
@@ -954,7 +960,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
     if(isTight) HistsMR[ch][0][etabin1][4]->Fill((*selectedLeptons)[1]->eta_,weight_lep);
     if(isTight) HistsMR[ch][0][etabin1][5]->Fill((*selectedLeptons)[1]->phi_,weight_lep);
       
-    if (MET_FinalCollection_Pt<30){
+    if (MET_FinalCollection_Pt>20){
       HistsMR[ch][1][etabin1][0]->Fill((*selectedLeptons)[1]->pt_,weight_lep);
       HistsMR[ch][1][etabin1][1]->Fill((*selectedLeptons)[1]->eta_,weight_lep);
       HistsMR[ch][1][etabin1][2]->Fill((*selectedLeptons)[1]->phi_,weight_lep);
@@ -963,7 +969,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
       if(isTight) HistsMR[ch][1][etabin1][5]->Fill((*selectedLeptons)[1]->phi_,weight_lep);
     }
       
-    if (MET_FinalCollection_Pt<30 && selectedJets->size()>0){
+    if (MET_FinalCollection_Pt>20&&selectedJets->size()>=1&&nbjet<=1){
       HistsMR[ch][2][etabin1][0]->Fill((*selectedLeptons)[1]->pt_,weight_lep);
       HistsMR[ch][2][etabin1][1]->Fill((*selectedLeptons)[1]->eta_,weight_lep);
       HistsMR[ch][2][etabin1][2]->Fill((*selectedLeptons)[1]->phi_,weight_lep);
@@ -972,7 +978,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
       if(isTight) HistsMR[ch][2][etabin1][5]->Fill((*selectedLeptons)[1]->phi_,weight_lep);
     }
       
-    if (selectedJets->size()>1 && nbjet <2){
+    if (MET_FinalCollection_Pt>20&&selectedJets->size()>=2&&nbjet<=1){
       HistsMR[ch][3][etabin1][0]->Fill((*selectedLeptons)[1]->pt_,weight_lepB);
       HistsMR[ch][3][etabin1][1]->Fill((*selectedLeptons)[1]->eta_,weight_lepB);
       HistsMR[ch][3][etabin1][2]->Fill((*selectedLeptons)[1]->phi_,weight_lepB);
@@ -981,7 +987,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
       if(isTight) HistsMR[ch][3][etabin1][5]->Fill((*selectedLeptons)[1]->phi_,weight_lepB);
     }
      
-    if (MET_FinalCollection_Pt>30 && nbjet >0){
+    if (MET_FinalCollection_Pt>20 && nbjet >=1){
       HistsMR[ch][4][etabin1][0]->Fill((*selectedLeptons)[1]->pt_,weight_lepB);
       HistsMR[ch][4][etabin1][1]->Fill((*selectedLeptons)[1]->eta_,weight_lepB);
       HistsMR[ch][4][etabin1][2]->Fill((*selectedLeptons)[1]->phi_,weight_lepB);
@@ -1003,7 +1009,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
   HistsFF[3-nTight][ch][0][6]->Fill(MET_FinalCollection_Pt,weight_lep);
   HistsFF[3-nTight][ch][0][7]->Fill(pv_n,weight_lep);
     
-  if (MET_FinalCollection_Pt<30){
+  if (MET_FinalCollection_Pt<20){
   HistsFF[3-nTight][ch][1][0]->Fill((*selectedLeptons)[0]->pt_,weight_lep);
   HistsFF[3-nTight][ch][1][1]->Fill((*selectedLeptons)[0]->eta_,weight_lep);
   if(selectedJets->size()>0) HistsFF[3-nTight][ch][1][2]->Fill((*selectedJets)[0]->pt_,weight_lep);
@@ -1023,6 +1029,38 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
   HistsFF[3-nTight][ch][2][6]->Fill(MET_FinalCollection_Pt,weight_lep);
   HistsFF[3-nTight][ch][2][7]->Fill(pv_n,weight_lep);
   }
+      
+  if (OnZ){
+  HistsFF[3-nTight][ch][3][0]->Fill((*selectedLeptons)[0]->pt_,weight_lep);
+  HistsFF[3-nTight][ch][3][1]->Fill((*selectedLeptons)[0]->eta_,weight_lep);
+  if(selectedJets->size()>0) HistsFF[3-nTight][ch][3][2]->Fill((*selectedJets)[0]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsFF[3-nTight][ch][3][3]->Fill((*selectedJets)[0]->eta_,weight_lep);
+  HistsFF[3-nTight][ch][3][4]->Fill(selectedJets->size(),weight_lep);
+  HistsFF[3-nTight][ch][3][5]->Fill(nbjet,weight_lepB);
+  HistsFF[3-nTight][ch][3][6]->Fill(MET_FinalCollection_Pt,weight_lep);
+  HistsFF[3-nTight][ch][3][7]->Fill(pv_n,weight_lep);
+  }
+  else{
+  HistsFF[3-nTight][ch][4][0]->Fill((*selectedLeptons)[0]->pt_,weight_lep);
+  HistsFF[3-nTight][ch][4][1]->Fill((*selectedLeptons)[0]->eta_,weight_lep);
+  if(selectedJets->size()>0) HistsFF[3-nTight][ch][4][2]->Fill((*selectedJets)[0]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsFF[3-nTight][ch][4][3]->Fill((*selectedJets)[0]->eta_,weight_lep);
+  HistsFF[3-nTight][ch][4][4]->Fill(selectedJets->size(),weight_lep);
+  HistsFF[3-nTight][ch][4][5]->Fill(nbjet,weight_lepB);
+  HistsFF[3-nTight][ch][4][6]->Fill(MET_FinalCollection_Pt,weight_lep);
+  HistsFF[3-nTight][ch][4][7]->Fill(pv_n,weight_lep);
+  }
+      
+  if (MET_FinalCollection_Pt>20&&!OnZ&&nbjet<=1&&selectedJets->size()>=1){
+  HistsFF[3-nTight][ch][5][0]->Fill((*selectedLeptons)[0]->pt_,weight_lep);
+  HistsFF[3-nTight][ch][5][1]->Fill((*selectedLeptons)[0]->eta_,weight_lep);
+  if(selectedJets->size()>0) HistsFF[3-nTight][ch][5][2]->Fill((*selectedJets)[0]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsFF[3-nTight][ch][5][3]->Fill((*selectedJets)[0]->eta_,weight_lep);
+  HistsFF[3-nTight][ch][5][4]->Fill(selectedJets->size(),weight_lep);
+  HistsFF[3-nTight][ch][5][5]->Fill(nbjet,weight_lepB);
+  HistsFF[3-nTight][ch][5][6]->Fill(MET_FinalCollection_Pt,weight_lep);
+  HistsFF[3-nTight][ch][5][7]->Fill(pv_n,weight_lep);
+  }
   //AR1:ll\overline{l}
   if (nTight==2){
       
@@ -1035,7 +1073,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
   HistsAR1[ch][0][etabin1][6]->Fill(MET_FinalCollection_Pt,(*selectedLeptons)[anti_index]->pt_,weight_lep);
   HistsAR1[ch][0][etabin1][7]->Fill(pv_n,(*selectedLeptons)[anti_index]->pt_,weight_lep);
     
-  if (MET_FinalCollection_Pt<30){
+  if (MET_FinalCollection_Pt<20){
   HistsAR1[ch][1][etabin1][0]->Fill((*selectedLeptons)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
   HistsAR1[ch][1][etabin1][1]->Fill((*selectedLeptons)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
   if(selectedJets->size()>0) HistsAR1[ch][1][etabin1][2]->Fill((*selectedJets)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
@@ -1056,7 +1094,38 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
   HistsAR1[ch][2][etabin1][7]->Fill(pv_n,(*selectedLeptons)[anti_index]->pt_,weight_lep);
   }
       
+  if (OnZ){
+  HistsAR1[ch][3][etabin1][0]->Fill((*selectedLeptons)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  HistsAR1[ch][3][etabin1][1]->Fill((*selectedLeptons)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR1[ch][3][etabin1][2]->Fill((*selectedJets)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR1[ch][3][etabin1][3]->Fill((*selectedJets)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  HistsAR1[ch][3][etabin1][4]->Fill(selectedJets->size(),(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  HistsAR1[ch][3][etabin1][5]->Fill(nbjet,(*selectedLeptons)[anti_index]->pt_,weight_lepB);
+  HistsAR1[ch][3][etabin1][6]->Fill(MET_FinalCollection_Pt,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  HistsAR1[ch][3][etabin1][7]->Fill(pv_n,(*selectedLeptons)[anti_index]->pt_,weight_lep);
   }
+  else{
+  HistsAR1[ch][4][etabin1][0]->Fill((*selectedLeptons)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  HistsAR1[ch][4][etabin1][1]->Fill((*selectedLeptons)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR1[ch][4][etabin1][2]->Fill((*selectedJets)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR1[ch][4][etabin1][3]->Fill((*selectedJets)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  HistsAR1[ch][4][etabin1][4]->Fill(selectedJets->size(),(*selectedLeptons)[anti_index]->pt_,weight_lepB);
+  HistsAR1[ch][4][etabin1][5]->Fill(nbjet,(*selectedLeptons)[anti_index]->pt_,weight_lepB);
+  HistsAR1[ch][4][etabin1][6]->Fill(MET_FinalCollection_Pt,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  HistsAR1[ch][4][etabin1][7]->Fill(pv_n,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  }
+      
+  if (MET_FinalCollection_Pt>20&&!OnZ&&nbjet<=1&&selectedJets->size()>=1){
+  HistsAR1[ch][5][etabin1][0]->Fill((*selectedLeptons)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  HistsAR1[ch][5][etabin1][1]->Fill((*selectedLeptons)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR1[ch][5][etabin1][2]->Fill((*selectedJets)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR1[ch][5][etabin1][3]->Fill((*selectedJets)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  HistsAR1[ch][5][etabin1][4]->Fill(selectedJets->size(),(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  HistsAR1[ch][5][etabin1][5]->Fill(nbjet,(*selectedLeptons)[anti_index]->pt_,weight_lepB);
+  HistsAR1[ch][5][etabin1][6]->Fill(MET_FinalCollection_Pt,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  HistsAR1[ch][5][etabin1][7]->Fill(pv_n,(*selectedLeptons)[anti_index]->pt_,weight_lep);
+  }
+}
   //AR2:l\overline{l}\overline{l}
   if (nTight==1){
   
@@ -1069,7 +1138,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
   HistsAR2[ch][0][etabin1][etabin2][6]->Fill(MET_FinalCollection_Pt,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
   HistsAR2[ch][0][etabin1][etabin2][7]->Fill(pv_n,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
   
-  if (MET_FinalCollection_Pt<30){
+  if (MET_FinalCollection_Pt<20){
   HistsAR2[ch][1][etabin1][etabin2][0]->Fill((*selectedLeptons)[0]->pt_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
   HistsAR2[ch][1][etabin1][etabin2][1]->Fill((*selectedLeptons)[0]->eta_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
   if(selectedJets->size()>0) HistsAR2[ch][1][etabin1][etabin2][2]->Fill((*selectedJets)[0]->pt_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
@@ -1088,6 +1157,38 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
   HistsAR2[ch][2][etabin1][etabin2][5]->Fill(nbjet,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lepB);
   HistsAR2[ch][2][etabin1][etabin2][6]->Fill(MET_FinalCollection_Pt,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
   HistsAR2[ch][2][etabin1][etabin2][7]->Fill(pv_n,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  }
+      
+  if (OnZ){
+  HistsAR2[ch][3][etabin1][etabin2][0]->Fill((*selectedLeptons)[0]->pt_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  HistsAR2[ch][3][etabin1][etabin2][1]->Fill((*selectedLeptons)[0]->eta_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR2[ch][3][etabin1][etabin2][2]->Fill((*selectedJets)[0]->pt_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR2[ch][3][etabin1][etabin2][3]->Fill((*selectedJets)[0]->eta_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  HistsAR2[ch][3][etabin1][etabin2][4]->Fill(selectedJets->size(),(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  HistsAR2[ch][3][etabin1][etabin2][5]->Fill(nbjet,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lepB);
+  HistsAR2[ch][3][etabin1][etabin2][6]->Fill(MET_FinalCollection_Pt,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  HistsAR2[ch][3][etabin1][etabin2][7]->Fill(pv_n,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  }
+  else{
+  HistsAR2[ch][4][etabin1][etabin2][0]->Fill((*selectedLeptons)[0]->pt_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  HistsAR2[ch][4][etabin1][etabin2][1]->Fill((*selectedLeptons)[0]->eta_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR2[ch][4][etabin1][etabin2][2]->Fill((*selectedJets)[0]->pt_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR2[ch][4][etabin1][etabin2][3]->Fill((*selectedJets)[0]->eta_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  HistsAR2[ch][4][etabin1][etabin2][4]->Fill(selectedJets->size(),(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  HistsAR2[ch][4][etabin1][etabin2][5]->Fill(nbjet,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lepB);
+  HistsAR2[ch][4][etabin1][etabin2][6]->Fill(MET_FinalCollection_Pt,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  HistsAR2[ch][4][etabin1][etabin2][7]->Fill(pv_n,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  }
+      
+  if (MET_FinalCollection_Pt>20&&!OnZ&&nbjet<=1&&selectedJets->size()>=1){
+  HistsAR2[ch][5][etabin1][etabin2][0]->Fill((*selectedLeptons)[0]->pt_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  HistsAR2[ch][5][etabin1][etabin2][1]->Fill((*selectedLeptons)[0]->eta_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR2[ch][5][etabin1][etabin2][2]->Fill((*selectedJets)[0]->pt_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  if(selectedJets->size()>0) HistsAR2[ch][5][etabin1][etabin2][3]->Fill((*selectedJets)[0]->eta_,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  HistsAR2[ch][5][etabin1][etabin2][4]->Fill(selectedJets->size(),(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  HistsAR2[ch][5][etabin1][etabin2][5]->Fill(nbjet,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lepB);
+  HistsAR2[ch][5][etabin1][etabin2][6]->Fill(MET_FinalCollection_Pt,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
+  HistsAR2[ch][5][etabin1][etabin2][7]->Fill(pv_n,(*selectedLeptons)[1]->pt_,(*selectedLeptons)[2]->pt_,weight_lep);
   }
       
   }

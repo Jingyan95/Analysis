@@ -48,10 +48,24 @@ def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", eta =
     canvas.SetBottomMargin(0.17)
     canvas.cd()
 
-    legend = ROOT.TLegend(0.7,0.55,0.9,0.88)
+    if showData:
+        legend = ROOT.TLegend(0.68,0.74,0.8,0.88)
+    else:
+        legend = ROOT.TLegend(0.68,0.74,0.8,0.833)
     legend.SetBorderSize(0)
+    legend.SetFillStyle(0);
     legend.SetTextFont(42)
     legend.SetTextSize(0.04)
+    legend2 = ROOT.TLegend(0.8,0.74,0.92,0.88)
+    legend2.SetBorderSize(0)
+    legend2.SetFillStyle(0);
+    legend2.SetTextFont(42)
+    legend2.SetTextSize(0.04)
+    legend3 = ROOT.TLegend(0.68,0.64,0.83,0.74)
+    legend3.SetBorderSize(0)
+    legend3.SetFillStyle(0);
+    legend3.SetTextFont(42)
+    legend3.SetTextSize(0.04)
 
     pad1=ROOT.TPad("pad1", "pad1", 0, 0.315, 1, 0.99 , 0)#used for the hist plot
     pad2=ROOT.TPad("pad2", "pad2", 0, 0.0, 1, 0.305 , 0)#used for the ratio plot
@@ -121,10 +135,15 @@ def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", eta =
     if showData:
        legend.AddEntry(dummy,Fnames[0],'ep')
     for num in range(1,len(hists)):
-        legend.AddEntry(hists[num],Fnames[num],'F')
+        if num<(len(hists)-3):
+           legend.AddEntry(hists[num],Fnames[num],'F')
+        else:
+           legend2.AddEntry(hists[num],Fnames[num],'F')
     for H in range(len(SignalHists)):
-        legend.AddEntry(SignalHists[H], Fnames[len(hists)+H],'L')
+        legend3.AddEntry(SignalHists[H], Fnames[len(hists)+H],'L')
     legend.Draw("same")
+    legend2.Draw("same")
+    legend3.Draw("same")
 
     if (showData) and (hs.GetStack().Last().Integral()>0):
         Label_DM = ROOT.TLatex(0.2,0.75,"Data/MC = " + str(round(hists[0].Integral()/hs.GetStack().Last().Integral(),2)))
@@ -200,10 +219,27 @@ def stackPlotsFF(hists, SignalHists, Fnames, f="FFregion", ch = "channel", reg =
     canvas.SetBottomMargin(0.17)
     canvas.cd()
 
-    legend = ROOT.TLegend(0.7,0.55,0.9,0.88)
+    if showData:
+        legend = ROOT.TLegend(0.68,0.74,0.8,0.88)
+    else:
+        legend = ROOT.TLegend(0.68,0.74,0.8,0.833)
     legend.SetBorderSize(0)
+    legend.SetFillStyle(0);
     legend.SetTextFont(42)
     legend.SetTextSize(0.04)
+    if 'Data' in f:
+        legend2 = ROOT.TLegend(0.8,0.7866,0.92,0.88)
+    else:
+        legend2 = ROOT.TLegend(0.8,0.74,0.92,0.88)
+    legend2.SetBorderSize(0)
+    legend2.SetFillStyle(0);
+    legend2.SetTextFont(42)
+    legend2.SetTextSize(0.04)
+    legend3 = ROOT.TLegend(0.68,0.64,0.83,0.74)
+    legend3.SetBorderSize(0)
+    legend3.SetFillStyle(0);
+    legend3.SetTextFont(42)
+    legend3.SetTextSize(0.04)
 
     pad1=ROOT.TPad("pad1", "pad1", 0, 0.315, 1, 0.99 , 0)#used for the hist plot
     pad2=ROOT.TPad("pad2", "pad2", 0, 0.0, 1, 0.305 , 0)#used for the ratio plot
@@ -269,13 +305,23 @@ def stackPlotsFF(hists, SignalHists, Fnames, f="FFregion", ch = "channel", reg =
     Label_channel.SetTextFont(42)
     Label_channel.Draw("same")
 
+    x=3
+    if 'Data' in f:
+        x=2
+
+
     if showData:
        legend.AddEntry(dummy,Fnames[0],'ep')
     for num in range(1,len(hists)):
-        legend.AddEntry(hists[num],Fnames[num],'F')
+        if num<(len(hists)-2):
+           legend.AddEntry(hists[num],Fnames[num],'F')
+        else:
+           legend2.AddEntry(hists[num],Fnames[num],'F')
     for H in range(len(SignalHists)):
-        legend.AddEntry(SignalHists[H], Fnames[len(hists)+H],'L')
+        legend3.AddEntry(SignalHists[H], Fnames[len(hists)+H],'L')
     legend.Draw("same")
+    legend2.Draw("same")
+    legend3.Draw("same")
 
     if (showData) and (hs.GetStack().Last().Integral()>0):
         Label_DM = ROOT.TLatex(0.2,0.75,"Data/MC = " + str(round(hists[0].Integral()/hs.GetStack().Last().Integral(),2)))
@@ -324,7 +370,7 @@ def stackPlotsFF(hists, SignalHists, Fnames, f="FFregion", ch = "channel", reg =
     gc.collect()
 
 year=['2017']
-regions=["ll","llMetl30","llMetl30Jetg0","llJetg1Bl2","llMetg30Bg0"]
+regions=["ll","llMetg20","llMetg20Jetgeq1Bleq1","llMetg20Jetgeq2Bleq1","llMetg20Bgeq1"]
 channels=["MR_e","MR_mu"];
 etaregs=["barrel","transition","endcap"]
 variables=["FlepPt","FlepEta","FlepPhi","TlepPt","TlepEta","TlepPhi"]
@@ -333,7 +379,7 @@ variablesName=["Fakeable lepton p_{T} [GeV]", "Fakeable lepton #eta", "Fakeable 
 
 FF=["VR","AR1","AR2"]
 channelsFF=["eee","mumumu"];
-regionsFF=["lll","lllMetl30","lllMetg30"]
+regionsFF=["lll","lllMetl20","lllMetg20","lllOnZ","lllOffZ","lllMetg20Jetgeq1Bleq1"]
 variablesFF=["lep1Pt","lep1Eta","jet1Pt","jet1Eta","njet","nbjet","Met","nVtx"]
 variablesNameFF=["Leading lepton p_{T} [GeV]", "Leading lepton #eta", "Leading jet p_{T} [GeV]", "Leading jet #eta", "njet", "nbjet", "MET [GeV]", "nVtx"]
 
@@ -353,7 +399,7 @@ Samples = ['data.root','TTV.root','WZ.root', 'ZZ.root', 'TTbar.root', 'others.ro
 SamplesName = ['data','TTV','WZ', 'ZZ', 'TTbar', 'others', 'ST_vector_emutu', 'TT_vector_emutu']
 SamplesNameLatex = ['data', 'TTV', 'WZ', 'ZZ', 'TTbar', 'others', 'ST\_vector\_emutu', 'TT\_vector\_emutu']
 
-SamplesNameFF = ['data','TTV','WZ', 'ZZ', 'Nonprompt Lepton', 'ST_vector_emutu', 'TT_vector_emutu']
+SamplesNameFF = ['data','TTV','WZ', 'ZZ', 'Nonprompt', 'ST_vector_emutu', 'TT_vector_emutu']
 
 colors =  [ROOT.kBlack,ROOT.kYellow,ROOT.kGreen,ROOT.kBlue-3,ROOT.kRed-4,ROOT.kOrange-3, ROOT.kPink, ROOT.kCyan-6]
 
@@ -486,6 +532,32 @@ for numreg, namereg in enumerate(regions):
     c.Print(ff+"/FakeFactor.pdf"+x,"pdf")
     FF1D.append(l0)
 
+#ROOT.gStyle.SetPaintTextFormat("7.0f")
+#d = ROOT.TCanvas("d","d",800,600)
+#FF1D[4][1][0].SetAxisRange(0,2,"Y")
+#FF1D[4][1][0].SetMarkerStyle(8)
+#FF1D[4][1][1].SetMarkerStyle(8)
+#FF1D[4][1][2].SetMarkerStyle(8)
+#FF1D[4][1][0].SetMarkerColor(1)
+#FF1D[4][1][1].SetMarkerColor(2)
+#FF1D[4][1][2].SetMarkerColor(3)
+#FF1D[4][1][0].SetLineColor(1)
+#FF1D[4][1][1].SetLineColor(2)
+#FF1D[4][1][2].SetLineColor(3)
+#FF1D[4][1][0].Draw("lp")
+#FF1D[4][1][1].Draw("lp same")
+#FF1D[4][1][2].Draw("lp same")
+#l = ROOT.TLegend(0.20,0.65,0.50,0.75)
+#l.SetFillColor(0)
+#l.SetLineColor(0)
+#l.SetTextSize(0.04)
+#l.AddEntry(FF1D[4][1][0],"Barrel","lep")
+#l.AddEntry(FF1D[4][1][1],"Transition","lep")
+#l.AddEntry(FF1D[4][1][2],"Endcap","lep")
+#l.SetTextFont(42)
+#l.Draw()
+#d.Print("test.pdf","pdf")
+
 # Prepare 2D and 3D AR histograms
 HistsAR1 = []
 HistsAR2 = []
@@ -525,11 +597,6 @@ for numyear, nameyear in enumerate(year):
         l0AR2.append(l1AR2)
     HistsAR1.append(l0AR1)
     HistsAR2.append(l0AR2)
-
-#d = ROOT.TCanvas("d","d",800,600)
-#ROOT.gStyle.SetPaintTextFormat("7.0f")
-#HistsAR1[0][0][1][1][0][0].Draw("text0")
-#d.Print("test.pdf","pdf")
 
 #Prepare 2D and 3D FF
 FF2D=[]
@@ -605,7 +672,7 @@ for numch, namech in enumerate(channelsFF):
                     for ithbin in range (1,tmp_VR2.GetNbinsX()+1):
                         for jthbin in range (1,tmp_VR2.GetNbinsY()+1):
                             for kthbin in range (1,tmp_VR2.GetNbinsZ()+1):
-                                if tmp_VR2.GetBinContent(ithbin,jthbin,kthbin)>0:
+                                if (tmp_VR2.GetBinContent(ithbin,jthbin,kthbin)>0) and (tmp_VR.GetBinContent(ithbin)-tmp_VR2.GetBinContent(ithbin,jthbin,kthbin)>0):
                                    tmp_VR.SetBinContent(ithbin,tmp_VR.GetBinContent(ithbin)-tmp_VR2.GetBinContent(ithbin,jthbin,kthbin))
 #                                   tmp_VR.SetBinError(ithbin,math.sqrt(tmp_VR.GetBinError(ithbin)**2+tmp_VR1.GetBinContent(ithbin,jthbin,kthbin)**2))
             tmp_VR.SetFillColor(colors[5])
