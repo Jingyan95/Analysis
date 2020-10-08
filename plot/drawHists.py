@@ -313,7 +313,7 @@ def stackPlotsFF(hists, SignalHists, Fnames, f="FFregion", ch = "channel", reg =
     if showData:
        legend.AddEntry(dummy,Fnames[0],'ep')
     for num in range(1,len(hists)):
-        if num<(len(hists)-2):
+        if num<(len(hists)-x):
            legend.AddEntry(hists[num],Fnames[num],'F')
         else:
            legend2.AddEntry(hists[num],Fnames[num],'F')
@@ -444,7 +444,7 @@ for numyear, nameyear in enumerate(year):
                             HHsignal.append(Hists[numyear][f][numch][numreg][numeta][numvar])
                         else:
                             HH.append(Hists[numyear][f][numch][numreg][numeta][numvar])
-                    stackPlots(HH, HHsignal, SamplesName, namech, namereg, nameeta, nameyear,namevar,variablesName[numvar])
+#                    stackPlots(HH, HHsignal, SamplesName, namech, namereg, nameeta, nameyear,namevar,variablesName[numvar])
 
 ## VR, AR1 and AR2
 HistsFF = []
@@ -488,14 +488,21 @@ for numyear, nameyear in enumerate(year):
                         else:
                             HHFF.append(HistsFF[numyear][f][numf][numch][numreg][numvar])
 
-                    stackPlotsFF(HHFF, HHsignalFF, SamplesName, namef, namech, namereg, nameyear,namevar,variablesNameFF[numvar])
+#                    stackPlotsFF(HHFF, HHsignalFF, SamplesName, namef, namech, namereg, nameyear,namevar,variablesNameFF[numvar])
 
 ROOT.gStyle.SetPaintTextFormat("15.3f")
 ## FF calculation
 FF1D = []
+Trash = []
+LTrash = []
+TTrash = []
 ff='FakeFactorStudy'
 c = ROOT.TCanvas("c","c",600,800)
 c.Divide(2,3)
+c2 = ROOT.TCanvas("c2","c2",600,800)
+c2.Divide(2,3)
+c3 = ROOT.TCanvas("c3","c3",600,800)
+c3.Divide(2,3)
 for numreg, namereg in enumerate(regions):
     l0=[]
     x=""
@@ -507,12 +514,43 @@ for numreg, namereg in enumerate(regions):
         l1=[]
         for numeta, nameeta in enumerate(etaregs):
             lt = ROOT.TLatex()
+            legend = ROOT.TLegend(0.11,0.61,0.62,0.78)
+            legend.SetTextFont(42)
+            legend.SetTextSize(0.025)
             HHFakeablePt = Hists[0][0][numch][numreg][numeta][0].Clone()
             HHTightPt = Hists[0][0][numch][numreg][numeta][3].Clone()
+            TTbarFakeablePt = Hists[0][4][numch][numreg][numeta][0].Clone()
+            TTbarTightPt = Hists[0][4][numch][numreg][numeta][3].Clone()
+            OthersFakeablePt = Hists[0][5][numch][numreg][numeta][0].Clone()
+            OthersTightPt = Hists[0][5][numch][numreg][numeta][3].Clone()
+            DataFakeablePt = Hists[0][0][numch][numreg][numeta][0].Clone()
+            DataTightPt = Hists[0][0][numch][numreg][numeta][3].Clone()
+            HHFakeablePtUp = Hists[0][0][numch][numreg][numeta][0].Clone()
+            HHTightPtUp = Hists[0][0][numch][numreg][numeta][3].Clone()
+            HHFakeablePtDown = Hists[0][0][numch][numreg][numeta][0].Clone()
+            HHTightPtDown = Hists[0][0][numch][numreg][numeta][3].Clone()
             for f in range(1,len(Samples)-4): # subtracted by promt contribution
-                HHFakeablePt.Add(Hists[0][f][numch][numreg][numeta][0],-1)
-                HHTightPt.Add(Hists[0][f][numch][numreg][numeta][3],-1)
-            HHFakeablePt.Add(HHTightPt,-1)  # FF=Tight/(Fakeable-Tight)
+                HHFakeablePt-=Hists[0][f][numch][numreg][numeta][0]
+                HHTightPt-=Hists[0][f][numch][numreg][numeta][3]
+                HHFakeablePtUp-=1.2*Hists[0][f][numch][numreg][numeta][0]
+                HHTightPtUp-=1.2*Hists[0][f][numch][numreg][numeta][3]
+                HHFakeablePtDown-=0.8*Hists[0][f][numch][numreg][numeta][0]
+                HHTightPtDown-=0.8*Hists[0][f][numch][numreg][numeta][3]
+            
+            FR_Pt = HHFakeablePt.Clone()
+            FR_Pt.SetTitle("")
+            FR_Pt.SetName("FR_Pt_"+namech+namereg+nameeta)
+            FR_Pt.GetXaxis().SetNoExponent()
+            FR_Pt.GetYaxis().SetNoExponent()
+            FR_Pt.GetYaxis().SetTitle("Fake Rate")
+            FR_Pt.GetXaxis().SetTitle("Lepton p_{T} [GeV]")
+            FR_Pt.Divide(HHTightPt, HHFakeablePt, 1.0, 1.0, "B")
+            FR_Pt.SetAxisRange(0,1.1,"Y")
+            
+            c3.cd(2*numeta+numch+1)
+            FR_Pt.Draw("lp")
+            lt.DrawLatexNDC(0.12,0.8,namech+" / "+namereg+" / "+nameeta)
+        
             FF_Pt = HHFakeablePt.Clone()
             FF_Pt.SetTitle("")
             FF_Pt.SetName("FF_Pt_"+namech+namereg+nameeta)
@@ -520,16 +558,106 @@ for numreg, namereg in enumerate(regions):
             FF_Pt.GetYaxis().SetNoExponent()
             FF_Pt.GetYaxis().SetTitle("Fake Factor")
             FF_Pt.GetXaxis().SetTitle("Lepton p_{T} [GeV]")
-            FF_Pt.Divide(HHTightPt, HHFakeablePt, 1.0, 1.0, "B")
+            FF_Pt.Divide(HHTightPt, HHFakeablePt-HHTightPt, 1.0, 1.0, "B")
+            
+            FF_TTbar_Pt = TTbarFakeablePt.Clone()
+            FF_TTbar_Pt.SetMarkerColor(2)
+            FF_TTbar_Pt.SetLineColor(2)
+            FF_TTbar_Pt.SetTitle("")
+            FF_TTbar_Pt.SetName("FF_TTbar_Pt_"+namech+namereg+nameeta)
+            FF_TTbar_Pt.GetXaxis().SetNoExponent()
+            FF_TTbar_Pt.GetYaxis().SetNoExponent()
+            FF_TTbar_Pt.GetYaxis().SetTitle("Fake Factor")
+            FF_TTbar_Pt.GetXaxis().SetTitle("Lepton p_{T} [GeV]")
+            FF_TTbar_Pt.Divide(TTbarTightPt, TTbarFakeablePt-TTbarTightPt, 1.0, 1.0, "B")
+            
+            FF_Others_Pt = OthersFakeablePt.Clone()
+            FF_Others_Pt.SetMarkerColor(3)
+            FF_Others_Pt.SetLineColor(3)
+            FF_Others_Pt.SetTitle("")
+            FF_Others_Pt.SetName("FF_Others_Pt_"+namech+namereg+nameeta)
+            FF_Others_Pt.GetXaxis().SetNoExponent()
+            FF_Others_Pt.GetYaxis().SetNoExponent()
+            FF_Others_Pt.GetYaxis().SetTitle("Fake Factor")
+            FF_Others_Pt.GetXaxis().SetTitle("Lepton p_{T} [GeV]")
+            FF_Others_Pt.Divide(OthersTightPt, OthersFakeablePt-OthersTightPt, 1.0, 1.0, "B")
+
+            FF_Data_Pt = DataFakeablePt.Clone()
+            FF_Data_Pt.SetTitle("")
+            FF_Data_Pt.SetName("FF_Data_Pt_"+namech+namereg+nameeta)
+            FF_Data_Pt.GetXaxis().SetNoExponent()
+            FF_Data_Pt.GetYaxis().SetNoExponent()
+            FF_Data_Pt.GetYaxis().SetTitle("Fake Factor")
+            FF_Data_Pt.GetXaxis().SetTitle("Lepton p_{T} [GeV]")
+            FF_Data_Pt.Divide(DataTightPt, DataFakeablePt-DataTightPt, 1.0, 1.0, "B")
+            
+            FF_Pt_Up = HHFakeablePtUp.Clone()
+            FF_Pt_Up.Divide(HHTightPtUp, HHFakeablePtUp-HHTightPtUp, 1.0, 1.0, "B")
+            
+            FF_Pt_Down = HHFakeablePtDown.Clone()
+            FF_Pt_Down.Divide(HHTightPtDown, HHFakeablePtDown-HHTightPtDown, 1.0, 1.0, "B")
+            
+            FF_Diff_Pt = FF_TTbar_Pt.Clone()
+            FF_Diff_Pt.GetYaxis().SetTitle("Fractional Difference")
+            FF_Diff_Pt.Divide(FF_TTbar_Pt-FF_Others_Pt, FF_TTbar_Pt, 1.0, 1.0, "B")
+            FF_Diff_Pt.SetAxisRange(-1.5,1.5,"Y")
+            
+            c2.cd(2*numeta+numch+1)
+            FF_Diff_Pt.Draw("lp")
+            lt.DrawLatexNDC(0.12,0.8,namech+" / "+namereg+" / "+nameeta)
+            
+            binwidth= array( 'd' )
+            bincenter= array( 'd' )
+            yvalue= array( 'd' )
+            yerrup= array( 'd' )
+            yerrdown= array( 'd' )
+
+            for b in range(FF_Pt_Up.GetNbinsX()):
+                binwidth.append(FF_Pt_Up.GetBinWidth(b+1)/2)
+                bincenter.append(FF_Pt_Up.GetBinCenter(b+1))
+                yvalue.append(FF_Pt.GetBinContent(b+1))
+                if FF_Pt_Up.GetBinContent(b+1)>0:
+                   error1 = abs(FF_Pt_Up.GetBinContent(b+1)-FF_Pt.GetBinContent(b+1))
+                else:
+                   error1 = 0.0000001
+                if FF_Pt_Down.GetBinContent(b+1)>0:
+                   error2 = abs(FF_Pt_Down.GetBinContent(b+1)-FF_Pt.GetBinContent(b+1))
+                else:
+                   error2 = 0.0000001
+                if FF_Pt_Up.GetBinContent(b+1)>FF_Pt_Down.GetBinContent(b+1):
+                   yerrup.append(error1)
+                   yerrdown.append(error2)
+                else:
+                   yerrup.append(error2)
+                   yerrdown.append(error1)
+
+            ErrorBand=ROOT.TGraphAsymmErrors(len(bincenter),bincenter,yvalue,binwidth,binwidth,yerrup,yerrdown)
+            ErrorBand.SetFillColor(13)
+            ErrorBand.SetLineColor(13)
+            ErrorBand.SetFillStyle(3004)
+            
             c.cd(2*numeta+numch+1)
-            FF_Pt.Draw("text0")
-            FF_Pt.SetAxisRange(0,10,"Y")
-            lt.DrawLatexNDC(0.2,0.8,namech+" / "+namereg+" / "+nameeta)
+            FF_Data_Pt.SetAxisRange(-1,5,"Y")
+            FF_Data_Pt.Draw("lp")
+            FF_TTbar_Pt.Draw("lp same")
+            FF_Others_Pt.Draw("lp same")
+            ErrorBand.Draw("2 same")
+            legend.AddEntry(FF_Data_Pt,"Data w/o EW correction",'lp')
+            legend.AddEntry(FF_TTbar_Pt,"TTbar",'lp')
+            legend.AddEntry(FF_Others_Pt,"Other Nonprompt",'lp')
+            legend.AddEntry(ErrorBand,"Data w/ EW correction  #pm 20% variation",'F')
+            legend.Draw("same")
+            lt.DrawLatexNDC(0.12,0.8,namech+" / "+namereg+" / "+nameeta)
             l1.append(FF_Pt)
+            Trash += [FF_TTbar_Pt,FF_Others_Pt,FF_Data_Pt,FF_Diff_Pt,FR_Pt]
+            LTrash += [legend]
+            TTrash += [ErrorBand]
         l0.append(l1)
     if not os.path.exists(ff):
            os.makedirs(ff)
     c.Print(ff+"/FakeFactor.pdf"+x,"pdf")
+    c2.Print(ff+"/FractionalDifference.pdf"+x,"pdf")
+    c3.Print(ff+"/FakeRate.pdf"+x,"pdf")
     FF1D.append(l0)
 
 #ROOT.gStyle.SetPaintTextFormat("7.0f")

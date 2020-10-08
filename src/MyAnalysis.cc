@@ -611,7 +611,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
 //cout<<ev_event<<"  "<<trig_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_accept <<"  "<< trig_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_accept <<"  "<< trig_HLT_Ele27_WPTight_Gsf_accept  <<"  "<<trig_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_accept <<"  "<< trig_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_accept <<"  "<< trig_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_accept<<"  "<<trig_HLT_IsoMu24_accept<<"  "<<trig_HLT_IsoTkMu24_accept<<endl;
 //cout<<"trig_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_accept "<< "trig_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_accept "<< "trig_HLT_Ele27_WPTight_Gsf_accept " <<"trig_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_accept "<< "trig_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_accept "<< "trig_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_accept "  <<"trig_HLT_IsoMu24_accept "<<"trig_HLT_IsoTkMu24_accept"<<endl;
     if(!(triggerPassSingleE || triggerPassSingleMu)&&f==0) continue;
-    if(!(triggerPassEE || triggerPassEMu || triggerPassMuMu)&&f>0) continue;
+    //if(!(triggerPassEE || triggerPassEMu || triggerPassMuMu)&&f>0) continue;
     if(!metFilterPass) continue;
 
 // lepton selection
@@ -849,7 +849,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
 //    if(ch==1) etabin1=0;
 //    if(ch==1) etabin2=0;
       
-    if (f==0){
+    if (nTight==1){
        if ((*selectedLeptons)[0]->lep_ == 1 && !triggerPassSingleE) continue;
        if ((*selectedLeptons)[0]->lep_ == 10 && !triggerPassSingleMu) continue;
       }
