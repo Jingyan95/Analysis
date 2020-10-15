@@ -84,7 +84,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
   typedef vector<Dim2> Dim3;
   typedef vector<Dim3> Dim4;
 
-  std::vector<TString> regions{"ll","llMetg20","llMetg20Jetgeq1Bleq1","llMetg20Jetgeq2Bleq1","llMetg20Bgeq1"};
+  std::vector<TString> regions{"ll","llMetg20","llMetg20Jetgeq1Bleq1","llJetgeq2Bleq1","llMetg20Bgeq1","llJetgeq1B0"};
   std::vector<TString> channels{"MR_e","MR_mu"};
   std::vector<TString> etaregs{"barrel","transition","endcap"};
   std::vector<TString> vars   {"FlepPt","FlepEta","FlepPhi","TlepPt","TlepEta","TlepPhi"};
@@ -978,7 +978,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
       if(isTight) HistsMR[ch][2][etabin1][5]->Fill((*selectedLeptons)[1]->phi_,weight_lep);
     }
       
-    if (MET_FinalCollection_Pt>20&&selectedJets->size()>=2&&nbjet<=1){
+    if (selectedJets->size()>=2&&nbjet<=1){
       HistsMR[ch][3][etabin1][0]->Fill((*selectedLeptons)[1]->pt_,weight_lepB);
       HistsMR[ch][3][etabin1][1]->Fill((*selectedLeptons)[1]->eta_,weight_lepB);
       HistsMR[ch][3][etabin1][2]->Fill((*selectedLeptons)[1]->phi_,weight_lepB);
@@ -994,6 +994,15 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2
       if(isTight) HistsMR[ch][4][etabin1][3]->Fill((*selectedLeptons)[1]->pt_,weight_lepB);
       if(isTight) HistsMR[ch][4][etabin1][4]->Fill((*selectedLeptons)[1]->eta_,weight_lepB);
       if(isTight) HistsMR[ch][4][etabin1][5]->Fill((*selectedLeptons)[1]->phi_,weight_lepB);
+    }
+     
+    if (selectedJets->size()>=1 && nbjet ==0){
+      HistsMR[ch][5][etabin1][0]->Fill((*selectedLeptons)[1]->pt_,weight_lepB);
+      HistsMR[ch][5][etabin1][1]->Fill((*selectedLeptons)[1]->eta_,weight_lepB);
+      HistsMR[ch][5][etabin1][2]->Fill((*selectedLeptons)[1]->phi_,weight_lepB);
+      if(isTight) HistsMR[ch][5][etabin1][3]->Fill((*selectedLeptons)[1]->pt_,weight_lepB);
+      if(isTight) HistsMR[ch][5][etabin1][4]->Fill((*selectedLeptons)[1]->eta_,weight_lepB);
+      if(isTight) HistsMR[ch][5][etabin1][5]->Fill((*selectedLeptons)[1]->phi_,weight_lepB);
     }
 
      nAccept++;

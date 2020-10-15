@@ -370,7 +370,7 @@ def stackPlotsFF(hists, SignalHists, Fnames, f="FFregion", ch = "channel", reg =
     gc.collect()
 
 year=['2017']
-regions=["ll","llMetg20","llMetg20Jetgeq1Bleq1","llMetg20Jetgeq2Bleq1","llMetg20Bgeq1"]
+regions=["ll","llMetg20","llMetg20Jetgeq1Bleq1","llJetgeq2Bleq1","llMetg20Bgeq1","llJetgeq1B0"]
 channels=["MR_e","MR_mu"];
 etaregs=["barrel","transition","endcap"]
 variables=["FlepPt","FlepEta","FlepPhi","TlepPt","TlepEta","TlepPhi"]
@@ -395,7 +395,7 @@ ARGS = parser.parse_args()
 verbose = ARGS.VERBOSE
 HistAddress = ARGS.LOCATION
 
-Samples = ['data.root','TTV.root','WZ.root', 'ZZ.root', 'TTbar.root', 'others.root', 'SMEFTfr_ST_vector_emutu.root', 'SMEFTfr_TT_vector_emutu.root']
+Samples = ['data.root','TTV.root','WZ.root', 'ZZ.root', 'TTbar.root', 'others.root', 'LFVStVecU.root', 'LFVTtVecU.root']
 SamplesName = ['data','TTV','WZ', 'ZZ', 'TTbar', 'others', 'ST_vector_emutu', 'TT_vector_emutu']
 SamplesNameLatex = ['data', 'TTV', 'WZ', 'ZZ', 'TTbar', 'others', 'ST\_vector\_emutu', 'TT\_vector\_emutu']
 
@@ -421,7 +421,7 @@ for numyear, nameyear in enumerate(year):
                     for numvar, namevar in enumerate(variables):
                         h= Files[f].Get(namech + '_' + namereg + '_' + nameeta + '_' + namevar)
                         h.SetFillColor(colors[f])
-                        if 'SMEFTfr' not in Samples[f]:
+                        if 'LFV' not in Samples[f]:
                             h.SetLineColor(colors[0])
                         else:
                             h.SetLineColor(colors[f])
@@ -440,7 +440,7 @@ for numyear, nameyear in enumerate(year):
                     HH=[]
                     HHsignal=[]
                     for f in range(len(Samples)):
-                        if 'SMEFTfr' in Samples[f]:
+                        if 'LFV' in Samples[f]:
                             HHsignal.append(Hists[numyear][f][numch][numreg][numeta][numvar])
                         else:
                             HH.append(Hists[numyear][f][numch][numreg][numeta][numvar])
@@ -464,7 +464,7 @@ for numyear, nameyear in enumerate(year):
                     for numvar, namevar in enumerate(variablesFF):
                         h= Files[f].Get(namef + '_' + namech + '_' + namereg + '_' + namevar)
                         h.SetFillColor(colors[f])
-                        if 'SMEFTfr' not in Samples[f]:
+                        if 'LFV' not in Samples[f]:
                             h.SetLineColor(colors[0])
                         else:
                             h.SetLineColor(colors[f])
@@ -483,12 +483,12 @@ for numyear, nameyear in enumerate(year):
                     HHFF=[]
                     HHsignalFF=[]
                     for f in range(len(Samples)):
-                        if 'SMEFTfr' in Samples[f]:
+                        if 'LFV' in Samples[f]:
                             HHsignalFF.append(HistsFF[numyear][f][numf][numch][numreg][numvar])
                         else:
                             HHFF.append(HistsFF[numyear][f][numf][numch][numreg][numvar])
 
-#                    stackPlotsFF(HHFF, HHsignalFF, SamplesName, namef, namech, namereg, nameyear,namevar,variablesNameFF[numvar])
+#                   stackPlotsFF(HHFF, HHsignalFF, SamplesName, namef, namech, namereg, nameyear,namevar,variablesNameFF[numvar])
 
 ROOT.gStyle.SetPaintTextFormat("15.3f")
 ## FF calculation
@@ -774,8 +774,11 @@ for numreg, namereg in enumerate(regions):
     FF3D.append(l03D)
 
 # Start making stack plots
-MRreg = 4 # Pick your favorite FF MR reg
 for numch, namech in enumerate(channelsFF):
+    if (numch==0):
+        MRreg = 4
+    else:
+        MRreg = 5
     for numreg, namereg in enumerate(regionsFF):
         for numvar, namevar in enumerate(variablesFF):
             tmp_VR=HistsFF[0][0][0][0][0][numvar].Clone()
@@ -809,7 +812,7 @@ for numch, namech in enumerate(channelsFF):
             HHsignalCorr=[]
             for f in range(len(Samples)):
                 if ('TTbar' not in Samples[f]) and ('others' not in Samples[f]):
-                   if 'SMEFTfr' in Samples[f]:
+                   if 'LFV' in Samples[f]:
                        HHsignalCorr.append(HistsFF[0][f][0][numch][numreg][numvar])
                    else:
                        HHCorr.append(HistsFF[0][f][0][numch][numreg][numvar])

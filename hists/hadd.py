@@ -11,6 +11,7 @@ import Files_2016
 import Files_2017
 import Files_2018
 import Files_2017_A
+from GFAL_GetROOTfiles import *
 
 SAMPLES = {}
 mc_2016 = False
@@ -20,8 +21,8 @@ data_2017 = False
 mc_2018 = False
 data_2018 = False
 
-SAMPLES.update(Files_2017_A.mc2017_samples)
-SAMPLES.update(Files_2017_A.data2017_samples)
+SAMPLES.update(Files_2017.mc2017_samples)
+SAMPLES.update(Files_2017.data2017_samples)
 
 if mc_2016:
     SAMPLES.update(Files_2016.mc2016_samples)
@@ -60,18 +61,19 @@ for key, value in SAMPLES.items():
         addedFilesZZ[year].append(  year + '/' + key + '.root ')
     elif ('TTTo2L2Nu' in key):
         addedFilesTTbar[year].append(  year + '/' + key + '.root ')
-    elif ('SMEFTfr' not in key):
+    elif ('LFV' not in key):
         addedFilesMc[year].append(  year + '/' + key + '.root ')
     else:
         hadd='hadd ' + key + '.root '
     for idx, S in enumerate(value[0]):
+        filelist = GFAL_GetROOTfiles( S ,"srm://maite.iihe.ac.be:8443/srm/managerv2?SFN="
+        )
         if value[1]=='data':
             nf = 255
-        for subdir, dirs, files in os.walk(S):
-            sequance = [files[i:i+nf] for i in range(0,len(files),nf)]
-            for num,  seq in enumerate(sequance):
-                hadd +=  year + '/' + key +'_' + str(idx) +'_' + str(num) + '.root '
-            break
+        #for subdir, dirs, files in os.walk(S):
+        sequance = [filelist[i:i+nf] for i in range(0,len(filelist),nf)]
+        for num,  seq in enumerate(sequance):
+            hadd +=  year + '/' + key +'_' + str(idx) +'_' + str(num) + '.root ' 
     os.system(hadd)
 
 os.system('rm *_data.root')

@@ -26,8 +26,8 @@ mc2017_samples['2017_TTZToQQ'] = [['/eos/user/a/asparker/TopLFV/2017_TTZToQQ/'],
 
 #mc2017_samples['2017_LFVStVecC'] = [['/eos/cms/store/user/asparker/TopLFV/2017_LFVStVecC/'], 'mc','','2017', '','0.0512' ,'41.53','500000']
 #vector interaction
-mc2017_samples['2017_SMEFTfr_ST_vector_emutc'] = [['/eos/cms/store/user/asparker/TopLFV/2017_SMEFTfr_ST_vector_emutc/'], 'mc','','2017', '','0.0512' ,'41.53','500000']
-mc2017_samples['2017_SMEFTfr_ST_vector_emutu'] = [['/eos/cms/store/user/asparker/TopLFV/2017_SMEFTfr_ST_vector_emutu/'], 'mc','','2017', '','0.515' ,'41.53','494000']
+mc2017_samples['2017_SMEFTfr_ST_vector_emutc'] = [['/eos/cms/store/user/asparker/TopLFV/2017_SMEFTfr_ST_vector_emutc/'], 'mc','','2017', '','0.04' ,'41.53','500000']
+mc2017_samples['2017_SMEFTfr_ST_vector_emutu'] = [['/eos/cms/store/user/asparker/TopLFV/2017_SMEFTfr_ST_vector_emutu/'], 'mc','','2017', '','0.452' ,'41.53','494000']
 mc2017_samples['2017_SMEFTfr_TT_vector_emutc'] = [['/eos/cms/store/user/asparker/TopLFV/2017_SMEFTfr_TT_vector_emutc/'], 'mc','','2017', '','0.032'  ,'41.53','500000']
 mc2017_samples['2017_SMEFTfr_TT_vector_emutu'] = [['/eos/cms/store/user/asparker/TopLFV/2017_SMEFTfr_TT_vector_emutu/'], 'mc','','2017', '','0.032','41.53','498000']
 
