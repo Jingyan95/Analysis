@@ -29,15 +29,12 @@ import Files_2018
 import Files_2017_A
 
 SAMPLES = {}
-mc_2016 = False
-data_2016 = False
-mc_2017 = False
-data_2017 = False
-mc_2018 = False
-data_2018 = False
-
-SAMPLES.update(Files_2017.mc2017_samples)
-SAMPLES.update(Files_2017.data2017_samples)
+mc_2016 = True
+data_2016 = True
+mc_2017 = True
+data_2017 = True
+mc_2018 = True
+data_2018 = True
 
 if mc_2016:
     SAMPLES.update(Files_2016.mc2016_samples)
@@ -65,8 +62,8 @@ sub1.write(submit+'\n')
 sub1.close()
 
 for key, value in SAMPLES.items():
-    #if name  not in key:
-    #   continue
+    if name  not in key:
+       continue
     year = value[3]
     nf = 40
     for idx, S in enumerate(value[0]):

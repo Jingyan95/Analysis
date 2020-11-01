@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--v', dest='VERBOSE', default=True)
 parser.add_argument('--l', dest = 'LOCATION', default= '/afs/cern.ch/user/a/asparker/public/LFVTopCode_MyFork/old_for_comparison/TopLFV/')
-parser.add_argument('--n', dest = 'NAMETAG', default= 'SMEFTfr' )
+parser.add_argument('--n', dest = 'NAMETAG', default= 'LFV' )
 
 ARGS = parser.parse_args()
 
@@ -28,24 +28,21 @@ name = ARGS.NAMETAG
 
 SAMPLES = {}
 #SAMPLES ['DYM10to50'] = ['address', 'data/mc','dataset','year', 'run', 'cross section','lumi','Neventsraw']
-mc_2016 = False
-data_2016 = False
-mc_2017 = False
-data_2017 = False
-mc_2018 = False
-data_2018 = False
-
-SAMPLES.update(Files_2017.mc2017_samples)
-SAMPLES.update(Files_2017.data2017_samples)
+mc_2016 = True
+data_2016 = True
+mc_2017 = True
+data_2017 = True
+mc_2018 = True
+data_2018 = True
 
 if mc_2016:
     SAMPLES.update(Files_2016.mc2016_samples)
 if data_2016:
     SAMPLES.update(Files_2016.data2016_samples)
 if mc_2017:
-    SAMPLES.update(Files_2017_A.mc2017_samples)
+    SAMPLES.update(Files_2017.mc2017_samples)
 if data_2017:
-    SAMPLES.update(Files_2017_A.data2017_samples)
+    SAMPLES.update(Files_2017.data2017_samples)
 if mc_2018:
     SAMPLES.update(Files_2018.mc2018_samples)
 if data_2018:
@@ -63,8 +60,8 @@ nf =40
 
 for key, value in SAMPLES.items():
 #########################################
-    #if name  not in key:
-    #   continue
+    if name  not in key:
+       continue
     nf = 40
     for idx, S in enumerate(value[0]):
         #print S

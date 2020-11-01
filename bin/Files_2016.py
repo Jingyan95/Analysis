@@ -25,10 +25,20 @@ mc2016_samples['2016_TTWJetsToLNu'] = [['/pnfs/iihe/cms/store/user/schenara/MC_R
 mc2016_samples['2016_TTZToLLNuNu'] = [['/pnfs/iihe/cms/store/user/schenara/MC_RunII_2016/TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8/crab_TTZToLLNuN/191130_110706/0000/', '/pnfs/iihe/cms/store/user/schenara/MC_RunII_2016/TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8/crab_TTZToLLNuNu_v3_ext1_v2/191201_071154/0000/', '/pnfs/iihe/cms/store/user/schenara/MC_RunII_2016/TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8/crab_TTZToLLNuNu_v3_ext3_v1/191201_071416/0000/'], 'mc','','2016', '','0.2529','35.92','6420825']
 mc2016_samples['2016_TTZToQQ'] = [['/pnfs/iihe/cms/store/user/schenara/MC_RunII_2016/TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8/crab_TTZToQQ/191130_110848/0000/'], 'mc','','2016', '','0.5297','35.92','351164']
 
-mc2016_samples['2016_LFVStVecC'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2017/IIHE_Ntuple/ntuple_SMEFTfr_ST_vector_emutc/'], 'mc','','2017', '','0.0512','35.92','500000']
-mc2016_samples['2016_LFVStVecU'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2017/IIHE_Ntuple/ntuple_SMEFTfr_ST_vector_emutu/'], 'mc','','2017', '','0.515','35.92','494000']
-mc2016_samples['2016_LFVTtVecC'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2017/IIHE_Ntuple/ntuple_SMEFTfr_TT_vector_emutc/'], 'mc','','2017', '','0.032','35.92','500000']
-mc2016_samples['2016_LFVTtVecU'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2017/IIHE_Ntuple/ntuple_SMEFTfr_TT_vector_emutu/'], 'mc','','2017', '','0.032','35.92','498000']
+mc2016_samples['2016_LFVStVecC'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2016/IIHE_Ntuple/ntuple_SMEFTfr_ST_vector_emutc/'], 'mc','','2016', '','0.0512','35.92','284000']
+mc2016_samples['2016_LFVStVecU'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2016/IIHE_Ntuple/ntuple_SMEFTfr_ST_vector_emutu/'], 'mc','','2016', '','0.515','35.92','492000']
+mc2016_samples['2016_LFVTtVecC'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2016/IIHE_Ntuple/ntuple_SMEFTfr_TT_vector_emutc/'], 'mc','','2016', '','0.032','35.92','478000']
+mc2016_samples['2016_LFVTtVecU'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2016/IIHE_Ntuple/ntuple_SMEFTfr_TT_vector_emutu/'], 'mc','','2016', '','0.032','35.92','488000']
+
+mc2016_samples['2016_LFVStScalarC'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2016/IIHE_Ntuple/ntuple_SMEFTfr_ST_clequ1_emutc/'], 'mc','','2016', '','0.008' ,'35.92','182000']
+mc2016_samples['2016_LFVStScalarU'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2016/IIHE_Ntuple/ntuple_SMEFTfr_ST_clequ1_emutu/'], 'mc','','2016', '','0.102' ,'35.92','302000']
+mc2016_samples['2016_LFVTtScalarC'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2016/IIHE_Ntuple/ntuple_SMEFTfr_TT_clequ1_emutc/'], 'mc','','2016', '','0.004' ,'35.92','466000']
+mc2016_samples['2016_LFVTtScalarU'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2016/IIHE_Ntuple/ntuple_SMEFTfr_TT_clequ1_emutu/'], 'mc','','2016', '','0.004' ,'35.92','322000']
+
+mc2016_samples['2016_LFVStTensorC'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2016/IIHE_Ntuple/ntuple_SMEFTfr_ST_clequ3_emutc/'], 'mc','','2016', '','0.187' ,'35.92','138000']
+mc2016_samples['2016_LFVStTensorU'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2016/IIHE_Ntuple/ntuple_SMEFTfr_ST_clequ3_emutu/'], 'mc','','2016', '','1.900' ,'35.92','462000']
+mc2016_samples['2016_LFVTtTensorC'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2016/IIHE_Ntuple/ntuple_SMEFTfr_TT_clequ3_emutc/'], 'mc','','2016', '','0.1876','35.92','290000']
+mc2016_samples['2016_LFVTtTensorU'] = [['/pnfs/iihe/cms/store/user/rgoldouz/TopLfvFullSim/2016/IIHE_Ntuple/ntuple_SMEFTfr_TT_clequ3_emutu/'], 'mc','','2016', '','0.1876','35.92','178000']
 
 #########################################
 data2016_samples['2016_B_MuonEG'] = [['/pnfs/iihe/cms/store/user/xgao/samples-20191203/data/2016/MuonEG/crab_MuonEG_runB/191203_070326/0000/','/pnfs/iihe/cms/store/user/xgao/samples-20191203/data/2016/MuonEG/crab_MuonEG_runB/191203_070326/0001/','/pnfs/iihe/cms/store/user/xgao/samples-20191203/data/2016/MuonEG/crab_MuonEG_runB/191203_070326/0002/','/pnfs/iihe/cms/store/user/xgao/samples-20191203/data/2016/MuonEG/crab_MuonEG_runB/191203_070326/0003/'], 'data','MuonEG','2016', 'B','1','1','1']
