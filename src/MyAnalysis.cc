@@ -438,18 +438,14 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
   if (fname.Contains("TTTo2L2Nu")) ifTopPt=true;
 
   if (fChain == 0) return;
-  //Long64_t nentries = fChain->GetEntriesFast();
   Long64_t nbytes = 0, nb = 0;
   Long64_t ntr = eList->GetN();
   // loop over number of entries
-
-  
-// test on just 100 events ??? fix this!
   // Long64_t
   for ( Long64_t  kentry=0; kentry<ntr;kentry++) {
-    //for (Long64_t jentry=0; jentry<100;jentry++) {
-    Long64_t   jentry = eList->Next();
-    Long64_t   ientry = LoadTree(jentry);
+    Long64_t   jentry = fChain->GetEntryNumber(kentry);//global entry number
+    if (jentry < 0) break;
+    Long64_t   ientry = LoadTree(jentry);//local entry number
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     displayProgress(kentry, ntr) ;

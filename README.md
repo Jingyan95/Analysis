@@ -132,9 +132,9 @@ cd CMSSW_10_6_4/src/
 cmsenv
 mkdir data
 cd data
-git clone -b TriLepNano  https://github.com/UBParker/Analysis.git TopLFV
+git clone -b TriLepNano_test https://github.com/jingyan95/Analysis.git TopLFV
 cd .. (in CMSSW/src/)
-git clone -b TriLepNano https://github.com/UBParker/nanoAOD-tools.git PhysicsTools/NanoAODTools
+git clone -b TriLepNano_test https://github.com/jingyan95/nanoAOD-tools.git PhysicsTools/NanoAODTools
 scram b -j 5
 cd data/TopLFV
 make all
