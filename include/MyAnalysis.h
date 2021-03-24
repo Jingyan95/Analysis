@@ -89,18 +89,18 @@ public :
    Bool_t          Electron_cutBased_HEEP[6];
    Bool_t          Electron_isPFcand[6];
    UChar_t         Electron_lostHits[6];
-   Int_t           Electron_mvaFall17V1Iso_WP80[6];
-   Int_t           Electron_mvaFall17V1Iso_WP90[6];
-   Int_t           Electron_mvaFall17V1Iso_WPL[6];
-   Int_t           Electron_mvaFall17V1noIso_WP80[6];
-   Int_t           Electron_mvaFall17V1noIso_WP90[6];
-   Int_t           Electron_mvaFall17V1noIso_WPL[6];
-   Int_t           Electron_mvaFall17V2Iso_WP80[6];
-   Int_t           Electron_mvaFall17V2Iso_WP90[6];
-   Int_t           Electron_mvaFall17V2Iso_WPL[6];
-   Int_t           Electron_mvaFall17V2noIso_WP80[6];
-   Int_t           Electron_mvaFall17V2noIso_WP90[6];
-   Int_t           Electron_mvaFall17V2noIso_WPL[6];
+   Bool_t          Electron_mvaFall17V1Iso_WP80[6];
+   Bool_t          Electron_mvaFall17V1Iso_WP90[6];
+   Bool_t          Electron_mvaFall17V1Iso_WPL[6];
+   Bool_t          Electron_mvaFall17V1noIso_WP80[6];
+   Bool_t          Electron_mvaFall17V1noIso_WP90[6];
+   Bool_t          Electron_mvaFall17V1noIso_WPL[6];
+   Bool_t          Electron_mvaFall17V2Iso_WP80[6];
+   Bool_t          Electron_mvaFall17V2Iso_WP90[6];
+   Bool_t          Electron_mvaFall17V2Iso_WPL[6];
+   Bool_t          Electron_mvaFall17V2noIso_WP80[6];
+   Bool_t          Electron_mvaFall17V2noIso_WP90[6];
+   Bool_t          Electron_mvaFall17V2noIso_WPL[6];
    UChar_t         Electron_seedGain[6];
 
 
@@ -198,12 +198,15 @@ public :
    Int_t           Jet_partonFlavour[6];
 
 
-
+      Bool_t        HLT_Ele38_WPTight_Gsf;
       Bool_t        HLT_Ele35_WPTight_Gsf;
+      Bool_t        HLT_Ele27_WPTight_Gsf;
 
       Bool_t        HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL;
 
       Bool_t        HLT_IsoMu27;
+      Bool_t        HLT_IsoMu24;
+      Bool_t        HLT_IsoMu20;
 
       Bool_t        HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8;
 
@@ -400,13 +403,16 @@ public :
          
 
 
-
+   TBranch        *b_HLT_Ele38_WPTight_Gsf;
    TBranch        *b_HLT_Ele35_WPTight_Gsf;
+   TBranch        *b_HLT_Ele27_WPTight_Gsf;
 
    TBranch        *b_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL;
 
    TBranch        *b_HLT_IsoMu27;
-
+   TBranch        *b_HLT_IsoMu24;
+   TBranch        *b_HLT_IsoMu20;
+    
    TBranch        *b_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8;
 
 
@@ -557,6 +563,10 @@ void MyAnalysis::Init(TTree *tree, TEntryList *list)
    fChain->SetBranchAddress("Electron_mvaTTH", &Electron_mvaTTH, &b_Electron_mvaTTH);
    fChain->SetBranchAddress("Electron_sip3d", &Electron_sip3d, &b_Electron_sip3d);
    */
+    
+   fChain->SetBranchAddress("Electron_mvaFall17V2noIso_WP80", &Electron_mvaFall17V2noIso_WP80, &b_Electron_mvaFall17V2noIso_WP80);
+   fChain->SetBranchAddress("Electron_mvaFall17V2noIso_WP90", &Electron_mvaFall17V2noIso_WP90, &b_Electron_mvaFall17V2noIso_WP90);
+   fChain->SetBranchAddress("Electron_mvaFall17V2noIso_WPL", &Electron_mvaFall17V2noIso_WPL, &b_Electron_mvaFall17V2noIso_WPL);
 
    fChain->SetBranchAddress("Electron_pdgId", &Electron_pdgId, &b_Electron_pdgId);                                                                                                
    fChain->SetBranchAddress("Electron_charge", &Electron_charge, &b_Electron_charge);
@@ -614,9 +624,13 @@ void MyAnalysis::Init(TTree *tree, TEntryList *list)
    fChain->SetBranchAddress("Jet_btagDeepB", &Jet_btagDeepB, &b_Jet_btagDeepB);
 
 
+   fChain->SetBranchAddress("HLT_Ele38_WPTight_Gsf", &HLT_Ele38_WPTight_Gsf, &b_HLT_Ele38_WPTight_Gsf);
    fChain->SetBranchAddress("HLT_Ele35_WPTight_Gsf", &HLT_Ele35_WPTight_Gsf, &b_HLT_Ele35_WPTight_Gsf);
+   fChain->SetBranchAddress("HLT_Ele27_WPTight_Gsf", &HLT_Ele27_WPTight_Gsf, &b_HLT_Ele27_WPTight_Gsf);
    fChain->SetBranchAddress("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL", &HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL, &b_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL);
    fChain->SetBranchAddress("HLT_IsoMu27", &HLT_IsoMu27, &b_HLT_IsoMu27);
+   fChain->SetBranchAddress("HLT_IsoMu24", &HLT_IsoMu24, &b_HLT_IsoMu24);
+   fChain->SetBranchAddress("HLT_IsoMu20", &HLT_IsoMu20, &b_HLT_IsoMu20);
    fChain->SetBranchAddress("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8", &HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8, &b_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8);
    fChain->SetBranchAddress("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", &HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ, &b_HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ);
    fChain->SetBranchAddress("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", &HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ, &b_HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ);
