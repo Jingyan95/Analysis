@@ -667,20 +667,20 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
           }
       }
       if( (muPtSFRochester * Muon_pt[l] <20) || (abs(Muon_eta[l]) > 2.4) ) continue;
-      if(!Muon_mediumId[l]||Muon_pfRelIso04_all[l] > 0.15) continue;
+      if(!Muon_mediumId[l]||Muon_pfRelIso04_all[l] > 0.15) continue;//Loose Muon ID, this is used to enhance the presence of fake muons
       //if((*mu_pfIsoDbCorrected04)[l] > 0.15 && (*mu_pfIsoDbCorrected04)[l] < 0.25) continue;
       nLoose++;
-      if (f==0){
-          if (nTight==1){
+      if (f==0){//f=0 -> MR
+          if (nTight==1){//If there is already a tight lepton, then we probe the second lepton found in event.
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * Muon_pt[l],Muon_eta[l],Muon_phi[l],Muon_charge[l],l,10));
               if (data == "mc" && year == "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, Muon_eta[l], Muon_pt[l],"");
               if (data == "mc" && year == "2016") sf_Mu_ISO = sf_Mu_ISO * scale_factor(&sf_Mu_ISO_H, Muon_eta[l], Muon_pt[l],"");
               if (data == "mc" && year != "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, Muon_pt[l], abs(Muon_eta[l]),"");
               if (data == "mc" && year != "2016") sf_Mu_ISO = sf_Mu_ISO * scale_factor(&sf_Mu_ISO_H, Muon_pt[l], abs(Muon_eta[l]),"");
-              if ((int) Muon_mvaId[l] >= 2) isTight = true;
+              if ((int) Muon_mvaId[l] >= 2) isTight = true;//Depending on the fraction of leptons passing this cut, we calculate fake rate (FR)
               continue;
           }
-          if ((int) Muon_mvaId[l] >= 2){
+          if ((int) Muon_mvaId[l] >= 2){//Looking for the first tight lepton
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * Muon_pt[l],Muon_eta[l],Muon_phi[l],Muon_charge[l],l,10));
               (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
               if (data == "mc" && year == "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, Muon_eta[l], Muon_pt[l],"");
@@ -690,7 +690,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
               nTight++;
           }
       }
-      else{
+      else{//f>0 -> VR+AR
           if ((int) Muon_mvaId[l] >= 2){
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * Muon_pt[l],Muon_eta[l],Muon_phi[l],Muon_charge[l],l,10));
               (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
@@ -714,14 +714,14 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
       elePt = Electron_pt[l]  ;
       eleEta = Electron_eta[l] + Electron_deltaEtaSC[l];
       if(elePt <20 || abs(Electron_eta[l]) > 2.4 || (abs(eleEta)> 1.4442 && (abs(eleEta)< 1.566))) continue;
-      if(!Electron_mvaFall17V2noIso_WP80[l]>0) continue;
+      if(!Electron_mvaFall17V2noIso_WP80[l]) continue;//Loose electron ID
       nLoose++;
       if (f==0){
          if (nTight==1){
          selectedLeptons->push_back(new lepton_candidate(elePt,Electron_eta[l],Electron_phi[l],Electron_charge[l],l,1));
          if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,eleEta,elePt,"");
          if (data == "mc") sf_Ele_ID = sf_Ele_ID * scale_factor(&sf_Ele_ID_H ,eleEta,elePt,"");
-         if ((int) Electron_cutBased[l] >= 4) isTight = true;
+         if ((int) Electron_cutBased[l] >= 4) isTight = true;//Tight electron ID
          continue;
          }
          if ((int) Electron_cutBased[l] >= 4){
@@ -747,7 +747,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
       }
       }
     }
-    if (f==0&&nLoose==2){
+    if (f==0&&nLoose==2){//This solves the problem concerning the order of lepton loops
       sort(selectedLeptons->begin(), selectedLeptons->end(), ComparePtLep);
       if (selectedLeptons->size()!=2 ||
          !((*selectedLeptons)[0]->isTag)){
@@ -830,7 +830,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
           }
           if (Zmass>76&&Zmass<106) OnZ=true;
       }
-      if (selectedLeptons->size()==4){
+      if (selectedLeptons->size()==4){//4-lepton ZZ control region
           sort(selectedLeptons->begin(), selectedLeptons->end(), CompareChargeLep);
           Zmass=((*selectedLeptons)[0]->p4_+(*selectedLeptons)[2]->p4_).M();
           if (abs(Zmass-mZ)>abs(((*selectedLeptons)[0]->p4_+(*selectedLeptons)[3]->p4_).M()-mZ)){
