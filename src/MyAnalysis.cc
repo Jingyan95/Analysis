@@ -668,7 +668,6 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
       }
       if( (muPtSFRochester * Muon_pt[l] <20) || (abs(Muon_eta[l]) > 2.4) ) continue;
       if(!Muon_mediumId[l]||Muon_pfRelIso04_all[l] > 0.15) continue;//Loose Muon ID, this is used to enhance the presence of fake muons
-      //if((*mu_pfIsoDbCorrected04)[l] > 0.15 && (*mu_pfIsoDbCorrected04)[l] < 0.25) continue;
       nLoose++;
       if (f==0){//f=0 -> MR
           if (nTight==1){//If there is already a tight lepton, then we probe the second lepton found in event.
@@ -713,18 +712,18 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
     for (UInt_t l=0;l< nElectron ;l++){
       elePt = Electron_pt[l]  ;
       eleEta = Electron_eta[l] + Electron_deltaEtaSC[l];
-      if(elePt <20 || abs(Electron_eta[l]) > 2.4 || (abs(eleEta)> 1.4442 && (abs(eleEta)< 1.566))) continue;
-      if(!Electron_mvaFall17V2noIso_WP80[l]) continue;//Loose electron ID
+      if (elePt <20 || abs(Electron_eta[l]) > 2.4 || (abs(eleEta)> 1.4442 && (abs(eleEta)< 1.566))) continue;
+      if (Electron_mvaTOP[l] < 0) continue;//Loose electron ID
       nLoose++;
       if (f==0){
          if (nTight==1){
          selectedLeptons->push_back(new lepton_candidate(elePt,Electron_eta[l],Electron_phi[l],Electron_charge[l],l,1));
          if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,eleEta,elePt,"");
          if (data == "mc") sf_Ele_ID = sf_Ele_ID * scale_factor(&sf_Ele_ID_H ,eleEta,elePt,"");
-         if ((int) Electron_cutBased[l] >= 4) isTight = true;//Tight electron ID
+         if (Electron_mvaTOP[l] > 0.9) isTight = true;//Tight electron ID
          continue;
          }
-         if ((int) Electron_cutBased[l] >= 4){
+         if (Electron_mvaTOP[l] > 0.9){
             selectedLeptons->push_back(new lepton_candidate(elePt,Electron_eta[l],Electron_phi[l],Electron_charge[l],l,1));
             (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
             if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,eleEta,elePt,"");
@@ -733,7 +732,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
          }
       }
       else{
-      if ((int) Electron_cutBased[l] >= 4){
+      if (Electron_mvaTOP[l] > 0.9){
          selectedLeptons->push_back(new lepton_candidate(elePt,Electron_eta[l],Electron_phi[l],Electron_charge[l],l,1));
          (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
          if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,eleEta,elePt,"");
@@ -768,16 +767,16 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
       for (int l=nElectron-1;l>-1;l--){
           elePt = Electron_pt[l]  ;
           eleEta = Electron_eta[l] + Electron_deltaEtaSC[l];
-          if(elePt <20 || abs(Electron_eta[l]) > 2.4 || (abs(eleEta)> 1.4442 && (abs(eleEta)< 1.566))) continue;
-          if(!Electron_mvaFall17V2noIso_WP80[l]) continue;
+          if (elePt <20 || abs(Electron_eta[l]) > 2.4 || (abs(eleEta)> 1.4442 && (abs(eleEta)< 1.566))) continue;
+          if (Electron_mvaTOP[l] < 0) continue;
           if (nTight==1){
              selectedLeptons->push_back(new lepton_candidate(elePt,Electron_eta[l],Electron_phi[l],Electron_charge[l],l,1));
              if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,eleEta,elePt,"");
              if (data == "mc") sf_Ele_ID = sf_Ele_ID * scale_factor(&sf_Ele_ID_H ,eleEta,elePt,"");
-             if ((int) Electron_cutBased[l] >= 4) isTight = true;
+             if (Electron_mvaTOP[l] > 0.9) isTight = true;
              continue;
           }
-          if ((int) Electron_cutBased[l] >= 4){
+          if (Electron_mvaTOP[l] > 0.9){
              selectedLeptons->push_back(new lepton_candidate(elePt,Electron_eta[l],Electron_phi[l],Electron_charge[l],l,1));
              (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
              if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,eleEta,elePt,"");
@@ -799,7 +798,6 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
           }
           if(muPtSFRochester * Muon_pt[l] <20 || abs(Muon_eta[l]) > 2.4) continue;
           if(!Muon_mediumId[l]||Muon_pfRelIso04_all[l] > 0.15) continue;
-          //if((*mu_pfIsoDbCorrected04)[l] > 0.15 && (*mu_pfIsoDbCorrected04)[l] < 0.25) continue;
           if (nTight==1){
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * Muon_pt[l],Muon_eta[l],Muon_phi[l],Muon_charge[l],l,10));
               if (data == "mc" && year == "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, Muon_eta[l], Muon_pt[l],"");
@@ -821,6 +819,9 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
       }
     }
     }
+      if (selectedLeptons->size()==2){
+         Zmass=((*selectedLeptons)[0]->p4_+(*selectedLeptons)[1]->p4_).M();
+      }
       if (selectedLeptons->size()==3 && abs((*selectedLeptons)[0]->charge_+(*selectedLeptons)[1]->charge_+(*selectedLeptons)[2]->charge_)==1){
           if (((*selectedLeptons)[0]->charge_+(*selectedLeptons)[1]->charge_)==0){
               Zmass=((*selectedLeptons)[0]->p4_+(*selectedLeptons)[1]->p4_).M();
@@ -828,7 +829,6 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
           else{
               Zmass=((*selectedLeptons)[0]->p4_+(*selectedLeptons)[2]->p4_).M();
           }
-          if (Zmass>76&&Zmass<106) OnZ=true;
       }
       if (selectedLeptons->size()==4){//4-lepton ZZ control region
           sort(selectedLeptons->begin(), selectedLeptons->end(), CompareChargeLep);
@@ -842,8 +842,8 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
           if (abs(Zmass-mZ)>abs(((*selectedLeptons)[1]->p4_+(*selectedLeptons)[3]->p4_).M()-mZ)){
               Zmass=((*selectedLeptons)[1]->p4_+(*selectedLeptons)[3]->p4_).M();
           }
-          if (Zmass>76&&Zmass<106) OnZ=true;
       }
+      if (Zmass>76&&Zmass<106) OnZ=true;
       
     sort(selectedLeptons->begin(), selectedLeptons->end(), ComparePtLep);
     nLeptonCut=f+2;
@@ -1024,19 +1024,8 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
 
     if (data == "mc") weight_lep = sf_Ele_Reco * sf_Ele_ID * sf_Mu_ID * sf_Mu_ISO * sf_Trigger * weight_PU * weight_Lumi  * mc_w_sign * weight_prefiring * weight_topPt;
     if (data == "mc") weight_lepB = sf_Ele_Reco * sf_Ele_ID * sf_Mu_ID * sf_Mu_ISO * sf_Trigger * weight_PU * weight_Lumi * mc_w_sign *  weight_prefiring * weight_topPt * (P_bjet_data/P_bjet_mc);
-//     cout<<ev_event<<"   "<<sf_Ele_Reco<<"   "<<sf_Ele_ID<<"      "<<sf_Mu_ID<<"   "<<sf_Mu_ISO<<"   "<<sf_Trigger<<"   "<<weight_PU<<endl;
-//    if(selectedJets->size()<3 || (MET_pt)>30 || nbjet !=1) continue;
-      
-    //          Debug
-//    cout<<endl<<" ch= "<<ch<<endl;
-//    cout<<" f = "<<f<<" nTight = "<<nTight<<" isTight = "<<isTight<<" anti-index = "<<anti_index<<endl;
-//    cout<<" etabin1 = "<<etabin1<<" etabin2 = "<<etabin2<<endl;
-//    cout<<" 1st lep eta = "<<(*selectedLeptons)[0]->eta_<<" 2nd lep = "<<(*selectedLeptons)[1]->eta_<<" 3rd lep = "<<(*selectedLeptons)[f<1?1:2]->eta_<<endl;
-//    cout<<" 1st lep flavor = "<<(*selectedLeptons)[0]->lep_<<" 2nd lep = "<<(*selectedLeptons)[1]->lep_<<" 3rd lep = "<<(*selectedLeptons)[f<1?1:2]->lep_<<endl;
-//    cout<<" 1st lep charge = "<<(*selectedLeptons)[0]->charge_<<" 2nd lep = "<<(*selectedLeptons)[1]->charge_<<" 3rd lep = "<<(*selectedLeptons)[f<1?1:2]->charge_<<endl;
-//    cout<<" 1st lep isTag = "<<(*selectedLeptons)[0]->isTag<<" 2nd lep = "<<(*selectedLeptons)[1]->isTag<<" 3rd lep = "<<(*selectedLeptons)[f<1?1:2]->isTag<<endl;
 
- if(f==0){
+ if(f==0&&!OnZ){//Z veto by default
     HistsMR[ch][0][etabin1][0]->Fill((*selectedLeptons)[1]->pt_,weight_lep);
     HistsMR[ch][0][etabin1][1]->Fill((*selectedLeptons)[1]->eta_,weight_lep);
     HistsMR[ch][0][etabin1][2]->Fill((*selectedLeptons)[1]->phi_,weight_lep);

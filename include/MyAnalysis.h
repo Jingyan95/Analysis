@@ -564,6 +564,7 @@ void MyAnalysis::Init(TTree *tree, TEntryList *list)
    fChain->SetBranchAddress("Electron_sip3d", &Electron_sip3d, &b_Electron_sip3d);
    */
     
+   fChain->SetBranchAddress("Electron_mvaTOP", &Electron_mvaTOP, &b_Electron_mvaTOP);
    fChain->SetBranchAddress("Electron_mvaFall17V2noIso_WP80", &Electron_mvaFall17V2noIso_WP80, &b_Electron_mvaFall17V2noIso_WP80);
    fChain->SetBranchAddress("Electron_mvaFall17V2noIso_WP90", &Electron_mvaFall17V2noIso_WP90, &b_Electron_mvaFall17V2noIso_WP90);
    fChain->SetBranchAddress("Electron_mvaFall17V2noIso_WPL", &Electron_mvaFall17V2noIso_WPL, &b_Electron_mvaFall17V2noIso_WPL);
