@@ -1090,7 +1090,7 @@ for numreg, namereg in enumerate(regions):
 # Start making stack plots
 for numch, namech in enumerate(channelsFF):
     if (numch==0):
-        MRreg = 2
+        MRreg = 3
     else:
         MRreg = 2
     for numreg, namereg in enumerate(regionsFF):

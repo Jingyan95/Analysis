@@ -713,7 +713,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
       elePt = Electron_pt[l]  ;
       eleEta = Electron_eta[l] + Electron_deltaEtaSC[l];
       if (elePt <20 || abs(Electron_eta[l]) > 2.4 || (abs(eleEta)> 1.4442 && (abs(eleEta)< 1.566))) continue;
-      if (Electron_mvaTOP[l] < 0) continue;//Loose electron ID
+      if ((int)Electron_cutBased[l] < 2) continue;//Loose electron ID
       nLoose++;
       if (f==0){
          if (nTight==1){
@@ -768,7 +768,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
           elePt = Electron_pt[l]  ;
           eleEta = Electron_eta[l] + Electron_deltaEtaSC[l];
           if (elePt <20 || abs(Electron_eta[l]) > 2.4 || (abs(eleEta)> 1.4442 && (abs(eleEta)< 1.566))) continue;
-          if (Electron_mvaTOP[l] < 0) continue;
+          if ((int)Electron_cutBased[l] < 2) continue;
           if (nTight==1){
              selectedLeptons->push_back(new lepton_candidate(elePt,Electron_eta[l],Electron_phi[l],Electron_charge[l],l,1));
              if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,eleEta,elePt,"");
