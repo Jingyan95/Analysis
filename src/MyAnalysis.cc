@@ -247,13 +247,13 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
 
     TH2F *h2_test;
     TH3F *h3_test;
-    for (int i=0;i<channelsFF.size();++i){
+    for (int i=0;i(int)<channelsFF.size();++i){
         for (int k=0;k<2;++k){
-            for (int j=0;j<etaregs.size();++j){
-                for (int l=0;l<varsFF.size();++l){
+            for (int j=0;j<(int)etaregs.size();++j){
+                for (int l=0;l<(int)varsFF.size();++l){
                     //Fill Bin Array
                     Double_t BinArray[nbinsFF[l]+1];
-                    for (int n=0;n<=nbinsFF[l];n++){
+                    for (int n=0;n<=(int)nbinsFF[l];n++){
                         BinArray[n]=lowEdgeFF[l]+n*(highEdgeFF[l]-lowEdgeFF[l])/nbinsFF[l];
                     }
                     //Fill 2D/3D Histograms
@@ -263,7 +263,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
                     h2_test->Sumw2(kTRUE);
                     HistsAR1[i][k][j][l] = h2_test;
                     name.str("");
-                    for (int m=0;m<etaregs.size();++m){
+                    for (int m=0;m<(int)etaregs.size();++m){
                         name<<"AR2_3D_"<<channelsFF[i]<<"_"<<regions[regions.size()+k-2]<<"_"<<etaregs[j]<<"_"<<etaregs[m]<<"_"<<varsFF[l];
                         h3_test = new TH3F((name.str()).c_str(),(name.str()).c_str(),nbinsFF[l],BinArray,7,ptBinsFF,7,ptBinsFF);
                         h3_test->StatOverflows(kTRUE);
@@ -2303,12 +2303,12 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
     }
   }
     
-  for (int i=0;i<channelsFF.size();++i){
+  for (int i=0;i<(int)channelsFF.size();++i){
       for (int k=0;k<2;++k){
-          for (int j=0;j<etaregs.size();++j){
-              for (int l=0;l<varsFF.size();++l){
+          for (int j=0;j<(int)etaregs.size();++j){
+              for (int l=0;l<(int)varsFF.size();++l){
                   HistsAR1[i][k][j][l]  ->Write("",TObject::kOverwrite);
-                  for (int m=0;m<etaregs.size();++m){
+                  for (int m=0;m<(int)etaregs.size();++m){
                       HistsAR2[i][k][j][m][l]  ->Write("",TObject::kOverwrite);
                   }
               }
@@ -2328,12 +2328,12 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
     }
   }
     
-  for (int i=0;i<channelsFF.size();++i){
+  for (int i=0;i<(int)channelsFF.size();++i){
       for (int k=0;k<2;++k){
-          for (int j=0;j<etaregs.size();++j){
-              for (int l=0;l<varsFF.size();++l){
+          for (int j=0;j<(int)etaregs.size();++j){
+              for (int l=0;l<(int)varsFF.size();++l){
                   delete HistsAR1[i][k][j][l];
-                  for (int m=0;m<etaregs.size();++m){
+                  for (int m=0;m<(int)etaregs.size();++m){
                       delete HistsAR2[i][k][j][m][l];
                   }
               }
