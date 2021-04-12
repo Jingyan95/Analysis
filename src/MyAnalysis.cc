@@ -247,7 +247,7 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
 
     TH2F *h2_test;
     TH3F *h3_test;
-    for (int i=0;i(int)<channelsFF.size();++i){
+    for (int i=0;i<(int)channelsFF.size();++i){
         for (int k=0;k<2;++k){
             for (int j=0;j<(int)etaregs.size();++j){
                 for (int l=0;l<(int)varsFF.size();++l){
