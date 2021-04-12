@@ -1,4 +1,4 @@
-#include "../include/lepton_candidate.h"
+#include "lepton_candidate.h"
 
 lepton_candidate::lepton_candidate(float pt_in, float eta_in, float phi_in, int charge_in, int ind_in, int lep_in ){
   pt_ = pt_in;
@@ -7,6 +7,7 @@ lepton_candidate::lepton_candidate(float pt_in, float eta_in, float phi_in, int 
   charge_ = charge_in;
   lep_ = lep_in;
   isbalep = 0;
+  isTag = 0;
   if(lep_in == 1)  p4_.SetPtEtaPhiM(pt_, eta_, phi_, 0.000511) ;
   if(lep_in == 10)  p4_.SetPtEtaPhiM(pt_, eta_, phi_, 0.10566) ;
   indice_ = ind_in;

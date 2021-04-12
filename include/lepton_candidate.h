@@ -25,6 +25,10 @@ public:
   void setbalep(){
        isbalep=1;
   }
+  int isTag;//is lepton tagged as prompt lepton ?
+  void setTag(){
+       isTag=1;
+  }
   TLorentzVector p4_;
 
 
