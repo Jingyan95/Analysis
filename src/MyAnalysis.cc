@@ -676,10 +676,10 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
               if (data == "mc" && year == "2016") sf_Mu_ISO = sf_Mu_ISO * scale_factor(&sf_Mu_ISO_H, Muon_eta[l], Muon_pt[l],"");
               if (data == "mc" && year != "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, Muon_pt[l], abs(Muon_eta[l]),"");
               if (data == "mc" && year != "2016") sf_Mu_ISO = sf_Mu_ISO * scale_factor(&sf_Mu_ISO_H, Muon_pt[l], abs(Muon_eta[l]),"");
-              if ((int) Muon_mvaId[l] >= 2) isTight = true;//Depending on the fraction of leptons passing this cut, we calculate fake rate (FR)
+              if (Muon_mvaTOP[l]>0.7) isTight = true;//Depending on the fraction of leptons passing this cut, we calculate fake rate (FR)
               continue;
           }
-          if ((int) Muon_mvaId[l] >= 2){//Looking for the first tight lepton
+          if (Muon_mvaTOP[l]>0.7){//Looking for the first tight lepton
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * Muon_pt[l],Muon_eta[l],Muon_phi[l],Muon_charge[l],l,10));
               (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
               if (data == "mc" && year == "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, Muon_eta[l], Muon_pt[l],"");
@@ -690,7 +690,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
           }
       }
       else{//f>0 -> VR+AR
-          if ((int) Muon_mvaId[l] >= 2){
+          if (Muon_mvaTOP[l]>0.7){
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * Muon_pt[l],Muon_eta[l],Muon_phi[l],Muon_charge[l],l,10));
               (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
               if (data == "mc" && year == "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, Muon_eta[l], Muon_pt[l],"");
@@ -713,7 +713,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
       elePt = Electron_pt[l]  ;
       eleEta = Electron_eta[l] + Electron_deltaEtaSC[l];
       if (elePt <20 || abs(Electron_eta[l]) > 2.4 || (abs(eleEta)> 1.4442 && (abs(eleEta)< 1.566))) continue;
-      if ((int)Electron_cutBased[l] < 2) continue;//Loose electron ID
+      if ((int)Electron_cutBased[l] < 1) continue;//Loose electron ID
       nLoose++;
       if (f==0){
          if (nTight==1){
@@ -768,7 +768,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
           elePt = Electron_pt[l]  ;
           eleEta = Electron_eta[l] + Electron_deltaEtaSC[l];
           if (elePt <20 || abs(Electron_eta[l]) > 2.4 || (abs(eleEta)> 1.4442 && (abs(eleEta)< 1.566))) continue;
-          if ((int)Electron_cutBased[l] < 2) continue;
+          if ((int)Electron_cutBased[l] < 1) continue;
           if (nTight==1){
              selectedLeptons->push_back(new lepton_candidate(elePt,Electron_eta[l],Electron_phi[l],Electron_charge[l],l,1));
              if (data == "mc") sf_Ele_Reco = sf_Ele_Reco * scale_factor(&sf_Ele_Reco_H ,eleEta,elePt,"");
@@ -804,10 +804,10 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
               if (data == "mc" && year == "2016") sf_Mu_ISO = sf_Mu_ISO * scale_factor(&sf_Mu_ISO_H, Muon_eta[l], Muon_pt[l],"");
               if (data == "mc" && year != "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, Muon_pt[l], abs(Muon_eta[l]),"");
               if (data == "mc" && year != "2016") sf_Mu_ISO = sf_Mu_ISO * scale_factor(&sf_Mu_ISO_H, Muon_pt[l], abs(Muon_eta[l]),"");
-              if ((int) Muon_mvaId[l] >= 2) isTight = true;
+              if (Muon_mvaTOP[l]>0.7) isTight = true;
               continue;
           }
-          if ((int) Muon_mvaId[l] >= 2){
+          if (Muon_mvaTOP[l]>0.7){
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * Muon_pt[l],Muon_eta[l],Muon_phi[l],Muon_charge[l],l,10));
               (*selectedLeptons)[selectedLeptons->size()-1]->setTag();
               if (data == "mc" && year == "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, Muon_eta[l], Muon_pt[l],"");
@@ -819,15 +819,23 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
       }
     }
     }
-      if (selectedLeptons->size()==2){
+      if (selectedLeptons->size()==2&&(*selectedLeptons)[0]->lep_+(*selectedLeptons)[1]->lep_==2){
          Zmass=((*selectedLeptons)[0]->p4_+(*selectedLeptons)[1]->p4_).M();
       }
       if (selectedLeptons->size()==3 && abs((*selectedLeptons)[0]->charge_+(*selectedLeptons)[1]->charge_+(*selectedLeptons)[2]->charge_)==1){
-          if (((*selectedLeptons)[0]->charge_+(*selectedLeptons)[1]->charge_)==0){
+          sort(selectedLeptons->begin(), selectedLeptons->end(), CompareChargeLep);
+          if ((*selectedLeptons)[0]->isTag&&(*selectedLeptons)[2]->isTag){
+          Zmass=((*selectedLeptons)[0]->p4_+(*selectedLeptons)[2]->p4_).M();
+          }
+          if ((*selectedLeptons)[0]->charge_+(*selectedLeptons)[1]->charge_==0){
+              if ((*selectedLeptons)[0]->isTag&&(*selectedLeptons)[1]->isTag&&abs(Zmass-mZ)>abs(((*selectedLeptons)[0]->p4_+(*selectedLeptons)[1]->p4_).M()-mZ)){
               Zmass=((*selectedLeptons)[0]->p4_+(*selectedLeptons)[1]->p4_).M();
+              }
           }
           else{
-              Zmass=((*selectedLeptons)[0]->p4_+(*selectedLeptons)[2]->p4_).M();
+              if ((*selectedLeptons)[1]->isTag&&(*selectedLeptons)[2]->isTag&&abs(Zmass-mZ)>abs(((*selectedLeptons)[1]->p4_+(*selectedLeptons)[2]->p4_).M()-mZ)){
+              Zmass=((*selectedLeptons)[1]->p4_+(*selectedLeptons)[2]->p4_).M();
+              }
           }
       }
       if (selectedLeptons->size()==4){//4-lepton ZZ control region
