@@ -456,7 +456,7 @@ SamplesNameFF = ['data','TTV','WZ', 'ZZ', 'Nonprompt', 'ST_vector_emutu', 'TT_ve
 
 colors =  [ROOT.kBlack,ROOT.kYellow,ROOT.kGreen,ROOT.kBlue-3,ROOT.kRed-4,ROOT.kOrange-3, ROOT.kOrange-6, ROOT.kCyan-6, ROOT.kGray]
 
-MakePlots = True
+MakePlots = False
 ZZcorr = False
 FFsys = False
 
@@ -643,24 +643,24 @@ for numreg, namereg in enumerate(regions):
             legend.SetTextSize(0.025)
             HHFakeablePt = Hists[0][0][numch][numreg][numeta][0].Clone()
             HHTightPt = Hists[0][0][numch][numreg][numeta][3].Clone()
-            TTbarFakeablePt = Hists[0][4][numch][numreg][numeta][0].Clone()
-            TTbarTightPt = Hists[0][4][numch][numreg][numeta][3].Clone()
-            OthersFakeablePt = Hists[0][5][numch][numreg][numeta][0].Clone()
-            OthersTightPt = Hists[0][5][numch][numreg][numeta][3].Clone()
-            CombineFakeablePt = Hists[0][4][numch][numreg][numeta][0].Clone()
-            CombineTightPt = Hists[0][4][numch][numreg][numeta][3].Clone()
-            CombineFakeablePtUp = Hists[0][4][numch][numreg][numeta][0].Clone()
-            CombineTightPtUp = Hists[0][4][numch][numreg][numeta][3].Clone()
-            CombineFakeablePtDown = Hists[0][4][numch][numreg][numeta][0].Clone()
-            CombineTightPtDown = Hists[0][4][numch][numreg][numeta][3].Clone()
             HHFakeablePtUp = Hists[0][0][numch][numreg][numeta][0].Clone()
             HHTightPtUp = Hists[0][0][numch][numreg][numeta][3].Clone()
             HHFakeablePtDown = Hists[0][0][numch][numreg][numeta][0].Clone()
             HHTightPtDown = Hists[0][0][numch][numreg][numeta][3].Clone()
-            ARTTbarFakeablePt = HistsFF[0][4][1][numch][5][1].Integral()
-            ARTTbarTightPt = HistsFF[0][4][1][numch][5][1].Integral()
-            AROthersFakeablePt = HistsFF[0][5][1][numch][5][1].Integral()
-            AROthersTightPt = HistsFF[0][5][1][numch][5][1].Integral()
+            TTbarFakeablePt = Hists[0][4][numch][0][numeta][0].Clone()
+            TTbarTightPt = Hists[0][4][numch][0][numeta][3].Clone()
+            OthersFakeablePt = Hists[0][5][numch][0][numeta][0].Clone()
+            OthersTightPt = Hists[0][5][numch][0][numeta][3].Clone()
+            CombineFakeablePt = Hists[0][5][numch][0][numeta][0].Clone()
+            CombineTightPt = Hists[0][5][numch][0][numeta][3].Clone()
+            CombineFakeablePtUp = Hists[0][5][numch][0][numeta][0].Clone()
+            CombineTightPtUp = Hists[0][5][numch][0][numeta][3].Clone()
+            CombineFakeablePtDown = Hists[0][5][numch][0][numeta][0].Clone()
+            CombineTightPtDown = Hists[0][5][numch][0][numeta][3].Clone()
+            MRTTbar = OthersFakeablePt.Integral()
+            MROthers = TTbarFakeablePt.Integral()
+            ARTTbar = Files[4].Get('AR1_2D_' + channelsFF[numch] + '_lll_' + nameeta + '_lep1Eta').Integral()
+            AROthers = Files[5].Get('AR1_2D_' + channelsFF[numch] + '_lll_' + nameeta + '_lep1Eta').Integral()
             for f in range(1,len(Samples)-4): # subtracted by promt contribution
                 HHFakeablePt-=Hists[0][f][numch][numreg][numeta][0]
                 HHTightPt-=Hists[0][f][numch][numreg][numeta][3]
@@ -718,12 +718,15 @@ for numreg, namereg in enumerate(regions):
             FF_Others_Pt.GetXaxis().SetTitle("Lepton p_{T} [GeV]")
             FF_Others_Pt.Divide(OthersTightPt, OthersFakeablePt-OthersTightPt, 1.0, 1.0, "B")
             
-            CombineFakeablePt+=(AROthersFakeablePt/ARTTbarFakeablePt)*OthersFakeablePt
-            CombineTightPt+=(AROthersTightPt/ARTTbarTightPt)*OthersTightPt
-            CombineFakeablePtUp+=1.5*(AROthersFakeablePt/ARTTbarFakeablePt)*OthersFakeablePt
-            CombineTightPtUp+=1.5*(AROthersTightPt/ARTTbarTightPt)*OthersTightPt
-            CombineFakeablePtDown+=0.6667*(AROthersFakeablePt/ARTTbarFakeablePt)*OthersFakeablePt
-            CombineTightPtDown+=0.6667*(AROthersTightPt/ARTTbarTightPt)*OthersTightPt
+            SamDepFactor=(ARTTbar/AROthers)*(MROthers/MRTTbar)
+            #SamDepFactor=1
+            
+            CombineFakeablePt+=SamDepFactor*TTbarFakeablePt
+            CombineTightPt+=SamDepFactor*TTbarTightPt
+            CombineFakeablePtUp+=1.5*SamDepFactor*TTbarFakeablePt
+            CombineTightPtUp+=1.5*SamDepFactor*TTbarTightPt
+            CombineFakeablePtDown+=0.6667*SamDepFactor*TTbarFakeablePt
+            CombineTightPtDown+=0.6667*SamDepFactor*TTbarTightPt
             
             FF_Combine_Pt = CombineFakeablePt.Clone()
             FF_Combine_Pt.SetMarkerColor(4)
@@ -810,14 +813,14 @@ for numreg, namereg in enumerate(regions):
 #                FF_TTbar_Pt.SetBinError(b+1,FF_TTbar_Pt.GetBinError(b+1)/FF_Pt.GetBinContent(b+1))
 #                FF_Others_Pt.SetBinContent(b+1,(FF_Others_Pt.GetBinContent(b+1)-FF_Pt.GetBinContent(b+1))/FF_Pt.GetBinContent(b+1))
 #                FF_Others_Pt.SetBinError(b+1,FF_Others_Pt.GetBinError(b+1)/FF_Pt.GetBinContent(b+1))
-#                FF_Combine_Pt.SetBinContent(b+1,(FF_Combine_Pt.GetBinContent(b+1)-FF_Pt.GetBinContent(b+1))/FF_Pt.GetBinContent(b+1))
-#                FF_Combine_Pt.SetBinError(b+1,FF_Combine_Pt.GetBinError(b+1)/FF_Pt.GetBinContent(b+1))
-#                FF_Combine_PtUp.SetBinContent(b+1,(FF_Combine_PtUp.GetBinContent(b+1)-FF_Pt.GetBinContent(b+1))/FF_Pt.GetBinContent(b+1))
-#                FF_Combine_PtUp.SetBinError(b+1,FF_Combine_PtUp.GetBinError(b+1)/FF_Pt.GetBinContent(b+1))
-#                FF_Combine_PtDown.SetBinContent(b+1,(FF_Combine_PtDown.GetBinContent(b+1)-FF_Pt.GetBinContent(b+1))/FF_Pt.GetBinContent(b+1))
-#                FF_Combine_PtDown.SetBinError(b+1,FF_Combine_PtDown.GetBinError(b+1)/FF_Pt.GetBinContent(b+1))
-#                FF_Data_Pt.SetBinContent(b+1,0)
-#                FF_Data_Pt.SetBinError(b+1,FF_Pt.GetBinError(b+1)/FF_Pt.GetBinContent(b+1))
+                FF_Combine_Pt.SetBinContent(b+1,(FF_Combine_Pt.GetBinContent(b+1)-FF_Pt.GetBinContent(b+1))/FF_Pt.GetBinContent(b+1))
+                FF_Combine_Pt.SetBinError(b+1,FF_Combine_Pt.GetBinError(b+1)/FF_Pt.GetBinContent(b+1))
+                FF_Combine_PtUp.SetBinContent(b+1,(FF_Combine_PtUp.GetBinContent(b+1)-FF_Pt.GetBinContent(b+1))/FF_Pt.GetBinContent(b+1))
+                FF_Combine_PtUp.SetBinError(b+1,FF_Combine_PtUp.GetBinError(b+1)/FF_Pt.GetBinContent(b+1))
+                FF_Combine_PtDown.SetBinContent(b+1,(FF_Combine_PtDown.GetBinContent(b+1)-FF_Pt.GetBinContent(b+1))/FF_Pt.GetBinContent(b+1))
+                FF_Combine_PtDown.SetBinError(b+1,FF_Combine_PtDown.GetBinError(b+1)/FF_Pt.GetBinContent(b+1))
+                FF_Data_Pt.SetBinContent(b+1,0)
+                FF_Data_Pt.SetBinError(b+1,FF_Pt.GetBinError(b+1)/FF_Pt.GetBinContent(b+1))
                 content=FF_Combine_Pt.GetBinContent(b+1)
                 contentup=FF_Combine_PtUp.GetBinContent(b+1)
                 contentdown=FF_Combine_PtDown.GetBinContent(b+1)
@@ -841,20 +844,20 @@ for numreg, namereg in enumerate(regions):
 
             c.cd(2*numeta+numch+1)
             FF_Data_Pt.SetAxisRange(-1.5,1.5,"Y")
-            FF_Data_Pt.GetYaxis().SetTitle("Frac. Diff")
+            FF_Data_Pt.GetYaxis().SetTitle("Fake Factor")
             FF_Data_Pt.Draw("lp")
-            FF_TTbar_Pt.Draw("lp same")
-            FF_Others_Pt.Draw("lp same")
+#            FF_TTbar_Pt.Draw("lp")
+#            FF_Others_Pt.Draw("lp same")
             FF_Combine_Pt.Draw("lp same")
             Error.SetFillColor(13)
             Error.SetLineColor(13)
             Error.SetFillStyle(3004)
-            Error.Draw("2")
+#            Error.Draw("2")
             legend.AddEntry(FF_Data_Pt,"Data",'lp')
-            legend.AddEntry(FF_TTbar_Pt,"TTbar",'lp')
-            legend.AddEntry(FF_Others_Pt,"Z+jets",'lp')
+#            legend.AddEntry(FF_TTbar_Pt,"TTbar",'lp')
+#            legend.AddEntry(FF_Others_Pt,"Z+jets",'lp')
             legend.AddEntry(FF_Combine_Pt,"TTbar & Z+jets",'lp')
-            legend.AddEntry(Error,'Samp. Dep. Un.','F')
+#            legend.AddEntry(Error,'Samp. Dep. Un.','F')
             legend.SetBorderSize(0)
             legend.SetFillStyle(0);
             legend.Draw("same")
@@ -1090,9 +1093,9 @@ for numreg, namereg in enumerate(regions):
 # Start making stack plots
 for numch, namech in enumerate(channelsFF):
     if (numch==0):
-        MRreg = 3
-    else:
         MRreg = 2
+    else:
+        MRreg = 1
     for numreg, namereg in enumerate(regionsFF):
         for numvar, namevar in enumerate(variablesFF):
             tmp_VR=HistsFF[0][0][0][0][0][numvar].Clone()

@@ -1112,7 +1112,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
   HistsFF[3-nTight][ch][0][1]->Fill((*selectedLeptons)[0]->eta_,weight_lep);
   if(selectedJets->size()>0) HistsFF[3-nTight][ch][0][2]->Fill((*selectedJets)[0]->pt_,weight_lep);
   if(selectedJets->size()>0) HistsFF[3-nTight][ch][0][3]->Fill((*selectedJets)[0]->eta_,weight_lep);
-  HistsFF[3-nTight][ch][0][4]->Fill(selectedJets->size(),weight_lepB);
+  HistsFF[3-nTight][ch][0][4]->Fill(selectedJets->size(),weight_lep);
   HistsFF[3-nTight][ch][0][5]->Fill(nbjet,weight_lepB);
   HistsFF[3-nTight][ch][0][6]->Fill((MET_pt),weight_lep);
   HistsFF[3-nTight][ch][0][7]->Fill(Pileup_nTrueInt,weight_lep);
@@ -1196,7 +1196,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
   HistsAR1[ch][2][etabin1][1]->Fill((*selectedLeptons)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
   if(selectedJets->size()>0) HistsAR1[ch][2][etabin1][2]->Fill((*selectedJets)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
   if(selectedJets->size()>0) HistsAR1[ch][2][etabin1][3]->Fill((*selectedJets)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
-  HistsAR1[ch][2][etabin1][4]->Fill(selectedJets->size(),(*selectedLeptons)[anti_index]->pt_,weight_lepB);
+  HistsAR1[ch][2][etabin1][4]->Fill(selectedJets->size(),(*selectedLeptons)[anti_index]->pt_,weight_lep);
   HistsAR1[ch][2][etabin1][5]->Fill(nbjet,(*selectedLeptons)[anti_index]->pt_,weight_lepB);
   HistsAR1[ch][2][etabin1][6]->Fill((MET_pt),(*selectedLeptons)[anti_index]->pt_,weight_lep);
   HistsAR1[ch][2][etabin1][7]->Fill(Pileup_nTrueInt,(*selectedLeptons)[anti_index]->pt_,weight_lep);
@@ -1217,7 +1217,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
   HistsAR1[ch][4][etabin1][1]->Fill((*selectedLeptons)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
   if(selectedJets->size()>0) HistsAR1[ch][4][etabin1][2]->Fill((*selectedJets)[0]->pt_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
   if(selectedJets->size()>0) HistsAR1[ch][4][etabin1][3]->Fill((*selectedJets)[0]->eta_,(*selectedLeptons)[anti_index]->pt_,weight_lep);
-  HistsAR1[ch][4][etabin1][4]->Fill(selectedJets->size(),(*selectedLeptons)[anti_index]->pt_,weight_lepB);
+  HistsAR1[ch][4][etabin1][4]->Fill(selectedJets->size(),(*selectedLeptons)[anti_index]->pt_,weight_lep);
   HistsAR1[ch][4][etabin1][5]->Fill(nbjet,(*selectedLeptons)[anti_index]->pt_,weight_lepB);
   HistsAR1[ch][4][etabin1][6]->Fill((MET_pt),(*selectedLeptons)[anti_index]->pt_,weight_lep);
   HistsAR1[ch][4][etabin1][7]->Fill(Pileup_nTrueInt,(*selectedLeptons)[anti_index]->pt_,weight_lep);
@@ -1308,7 +1308,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
     HistsZZ[ch][0][1]->Fill((*selectedLeptons)[0]->eta_,weight_lep);
     if(selectedJets->size()>0) HistsZZ[ch][0][2]->Fill((*selectedJets)[0]->pt_,weight_lep);
     if(selectedJets->size()>0) HistsZZ[ch][0][3]->Fill((*selectedJets)[0]->eta_,weight_lep);
-    HistsZZ[ch][0][4]->Fill(selectedJets->size(),weight_lepB);
+    HistsZZ[ch][0][4]->Fill(selectedJets->size(),weight_lep);
     HistsZZ[ch][0][5]->Fill(nbjet,weight_lepB);
     HistsZZ[ch][0][6]->Fill((MET_pt),weight_lep);
     HistsZZ[ch][0][7]->Fill(Pileup_nTrueInt,weight_lep);
