@@ -86,104 +86,6 @@ def cutFlowTable(hists, samples, regions, ch, year,caption='2017', nsig=6):
 #    table += '\\end{sidewaystable*}' + "\n"
     print table
 
-def cutFlowTable1(hists, hists1, samples, regions, ch, year,caption='2017', nsig=6):
-    mcSum = list(0 for i in xrange(0,len(regions)))
-    mcSum1 = list(0 for i in xrange(0,len(regions)))
-    if not ch==1:
-        showData = True
-    else:
-        showData = False
-#    table = '\\begin{sidewaystable*}' + "\n"
-    table = '\\begin{table*}' + "\n"
-    table += '\\centering' + "\n"
-    table += '\\caption{' + caption +"}\n"
-    table += '\\resizebox{\\textwidth}{!}{ \n'
-    table += '\\begin{tabular}{|l|' + ''.join([('' if (c!='lll') and (c!='lllOffZ') and (c!='lllOffZMetg20') and (c!='lllOffZMetg20Jetgeq1Bleq1') else 'l|') for c in regions]).strip() +'}' + "\n"
-    table += '\\hline' + "\n"
-    table += 'Samples ' + ''.join([('' if (c!='lll') and (c!='lllOffZ') and (c!='lllOffZMetg20') and (c!='lllOffZMetg20Jetgeq1Bleq1') else ' & '+c) for c in regions]).strip() + '\\\\' + "\n"
-    table += '\\hline' + "\n"
-
-    for ids, s in enumerate(samples):
-        if ids==0:
-            continue
-        for idr, r in enumerate(regions):
-            if ids<nsig:
-               mcSum[idr] += hists[year][ids][ch][idr][2].Integral()
-               mcSum1[idr] += hists1[year][ids][ch][idr][2].Integral()
-
-    for ids, s in enumerate(samples):
-        if ids==0:
-            continue
-        table += s
-        for idr, r in enumerate(regions):
-            if (regions[idr]=='lll') or (regions[idr]=='lllOffZ') or (regions[idr]=='lllOffZMetg20') or (regions[idr]=='lllOffZMetg20Jetgeq1Bleq1'):
-               mva=hists[year][ids][ch][idr][2].Integral()
-               cut=hists1[year][ids][ch][idr][2].Integral()
-               gain=False
-               if mva>cut:
-                  gain=True
-               if mcSum[idr]==0:
-                  mcSum[idr]=1
-               if mcSum1[idr]==0:
-                  mcSum1[idr]=1
-               if gain:
-                  table += (' & ' + str(int(mva))+ ' {\color{green}+' + str(int(mva-cut)) + ' ('+str(100*round((mva-cut)/cut,2))+'\%)}' )
-               else:
-                  table += (' & ' + str(int(mva))+ ' {\color{red}-' + str(int(cut-mva)) + ' ('+str(100*round((cut-mva)/cut,2))+'\%)}' )
-        table += '\\\\' + "\n"
-    table += '\\hline' + "\n"
-    table += 'Prediction '
-    for idr, r in enumerate(mcSum):
-        if (regions[idr]=='lll') or (regions[idr]=='lllOffZ') or (regions[idr]=='lllOffZMetg20') or (regions[idr]=='lllOffZMetg20Jetgeq1Bleq1'):
-           mva=r
-           cut=mcSum1[idr]
-           gain=False
-           if mva>cut:
-               gain=True
-           if gain:
-              table += (' & ' + str(int(mva))+ ' {\color{green}+' + str(int(mva-cut)) + ' ('+str(100*round((mva-cut)/cut,2))+'\%)}' )
-           else:
-              table += (' & ' + str(int(mva))+ ' {\color{red}-' + str(int(cut-mva)) + ' ('+str(100*round((cut-mva)/cut,2))+'\%)}' )
-    table += '\\\\' + "\n"
-    table += '\\hline' + "\n"
-    if showData:
-      table += 'Data '
-      for idr, r in enumerate(regions):
-          if (regions[idr]=='lll') or (regions[idr]=='lllOffZ') or (regions[idr]=='lllOffZMetg20') or (regions[idr]=='lllOffZMetg20Jetgeq1Bleq1'):
-             mva=hists[year][0][ch][idr][2].Integral()
-             cut=hists1[year][0][ch][idr][2].Integral()
-             gain=False
-             if mva>cut:
-                gain=True
-             if gain:
-                table += (' & ' + str(int(mva))+ ' {\color{green}+' + str(int(mva-cut)) + ' ('+str(100*round((mva-cut)/cut,2))+'\%)}' )
-             else:
-                table += (' & ' + str(int(mva))+ ' {\color{red}-' + str(int(cut-mva)) + ' ('+str(100*round((cut-mva)/cut,2))+'\%)}' )
-      table += '\\\\' + "\n"
-      table += '\\hline' + "\n"
-      table += 'Data$/$Pred. '
-      for idr, r in enumerate(mcSum):
-          if r==0:
-             r=0.1
-          if mcSum1[idr]==0:
-             mcSum1[idr]=0.1
-          if (regions[idr]=='lll') or (regions[idr]=='lllOffZ') or (regions[idr]=='lllOffZMetg20') or (regions[idr]=='lllOffZMetg20Jetgeq1Bleq1'):
-             mva=hists[year][0][ch][idr][2].Integral()/r
-             cut=hists1[year][0][ch][idr][2].Integral()/mcSum1[idr]
-             gain=False
-             if mva>cut:
-                gain=True
-             if gain:
-                table += (' & ' + str(round(mva,2))+ ' {\color{green}+' + str(round((mva-cut),2)) + ' ('+str(100*round((mva-cut)/cut,2))+'\%)}' )
-             else:
-                table += (' & ' + str(round(mva,2))+ ' {\color{red}-' + str(round((cut-mva),2)) + ' ('+str(100*round((cut-mva)/cut,2))+'\%)}' )
-      table += '\\\\' + "\n"
-      table += '\\hline' + "\n"
-    table += '\\end{tabular}}' + "\n"
-    table += '\\end{table*}' + "\n"
-#    table += '\\end{sidewaystable*}' + "\n"
-    print table
-
 def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", year='2017', var="sample", varname="v"):
     if not os.path.exists(year):
        os.makedirs(year)
@@ -371,6 +273,9 @@ def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", year=
     dummy_ratio.Draw("AXISSAMEY+")
     dummy_ratio.Draw("AXISSAMEX+")
     canvas.Print(year + '/' + ch +'/'+reg+'/'+var + ".png")
+    for num in range(len(SignalHists)):
+        if num>0:
+           SignalHists[num].Scale(0.1)
     del canvas
     gc.collect()
 
@@ -470,45 +375,29 @@ SamplesNameLatex = ['data', 'TTV', 'WZ', 'ZZ', 'TTbar', 'others', 'ST\_vector\_e
 colors =  [ROOT.kBlack,ROOT.kYellow,ROOT.kGreen,ROOT.kBlue-3,ROOT.kRed-4,ROOT.kOrange-3, ROOT.kOrange-6, ROOT.kCyan-6]
 
 Hists = []
-Hists1 = []
 for numyear, nameyear in enumerate(year):
     l0=[]
-    l01=[]
     Files = []
-    Files1 = []
     for f in range(len(Samples)):
         l1=[]
-        l11=[]
         Files.append(ROOT.TFile.Open(HistAddress + nameyear+ '_' + Samples[f]))
-        Files1.append(ROOT.TFile.Open(HistAddress +'/MuonCut/'+ nameyear+ '_' + Samples[f]))
         print HistAddress + nameyear+ '_' + Samples[f]
         for numch, namech in enumerate(channels):
             l2=[]
-            l21=[]
             for numreg, namereg in enumerate(regions):
                 l3=[]
-                l31=[]
                 for numvar, namevar in enumerate(variables):
                     h= Files[f].Get(namech + '_' + namereg + '_' + namevar)
                     h.SetFillColor(colors[f])
-                    h1= Files1[f].Get(namech + '_' + namereg + '_' + namevar)
-                    h1.SetFillColor(colors[f])
                     if 'LFV' not in Samples[f]:
                         h.SetLineColor(colors[0])
-                        h1.SetLineColor(colors[0])
                     else:
                         h.SetLineColor(colors[f])
-                        h1.SetLineColor(colors[f])
                     l3.append(h)
-                    l31.append(h1)
                 l2.append(l3)
-                l21.append(l31)
             l1.append(l2)
-            l11.append(l21)
         l0.append(l1)
-        l01.append(l11)
     Hists.append(l0)
-    Hists1.append(l01)
 
 for numyear, nameyear in enumerate(year):
     for numch, namech in enumerate(channels):
@@ -522,7 +411,7 @@ for numyear, nameyear in enumerate(year):
                     else:
                         HH.append(Hists[numyear][f][numch][numreg][numvar])
 
-#                stackPlots(HH, HHsignal, SamplesName, namech, namereg, nameyear,namevar,variablesName[numvar])
+                stackPlots(HH, HHsignal, SamplesName, namech, namereg, nameyear,namevar,variablesName[numvar])
 
 le = '\\documentclass{article}' + "\n"
 le += '\\usepackage{rotating}' + "\n"
@@ -532,27 +421,6 @@ le += '\\begin{document}' + "\n"
 print le
 for numyear, nameyear in enumerate(year):
     for numch, namech in enumerate(channels):
-        cutFlowTable1(Hists, Hists1, SamplesNameLatex, regions, numch, numyear, nameyear + ' ' + namech, len(Samples)-2 )
+        cutFlowTable(Hists, SamplesNameLatex, regions, numch, numyear, nameyear + ' ' + namech, len(Samples)-2 )
 print '\\end{document}' + "\n"
 
-
-for numreg, namereg in enumerate(regions):
-    for numvar, namevar in enumerate(variables):
-        HH=[]
-        HHname=[]
-        for f in range(len(Samples)):
-            if 'LFV' in Samples[f] or 'TTbar' in Samples[f]:
-                HH.append(Hists[0][f][1][numreg][numvar])
-                HHname.append(SamplesName[f])
-#        compareHists(HH,HHname, 'emul', namereg,namevar,variablesName[numvar])
-
-for numreg, namereg in enumerate(regions):
-    for numvar, namevar in enumerate(variables):
-        HH=[]
-        HHname=[]
-        for f in range(len(Samples)):
-            if 'WZ' in Samples[f] or 'ZZ' in Samples[f] or 'others' in Samples[f]:
-                Hists[0][f][0][numreg][numvar].SetLineColor(colors[f])
-                HH.append(Hists[0][f][0][numreg][numvar])
-                HHname.append(SamplesName[f])
-#        compareHists(HH,HHname, 'eee', namereg,namevar,variablesName[numvar])
