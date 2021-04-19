@@ -131,7 +131,7 @@ def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", eta =
     Label_cms1.SetTextSize(0.042);
     Label_cms1.SetTextFont(52)
     Label_cms1.Draw()
-    Label_lumi = ROOT.TLatex(0.74,0.92,Lumi+" fb^{-1} (13 TeV)")
+    Label_lumi = ROOT.TLatex(0.72,0.92,Lumi+" fb^{-1} (13 TeV)")
     Label_lumi.SetNDC()
     Label_lumi.SetTextFont(42)
     Label_lumi.Draw("same")
@@ -331,7 +331,7 @@ def stackPlotsFF(hists, SignalHists, error, errorRatio, Fnames, f="FFregion", ch
     Label_cms1.SetTextSize(0.042);
     Label_cms1.SetTextFont(52)
     Label_cms1.Draw()
-    Label_lumi = ROOT.TLatex(0.74,0.92,Lumi+" fb^{-1} (13 TeV)")
+    Label_lumi = ROOT.TLatex(0.72,0.92,Lumi+" fb^{-1} (13 TeV)")
     Label_lumi.SetNDC()
     Label_lumi.SetTextFont(42)
     Label_lumi.Draw("same")
@@ -456,7 +456,7 @@ SamplesNameFF = ['data','TTV','WZ', 'ZZ', 'Nonprompt', 'ST_vector_emutu', 'TT_ve
 
 colors =  [ROOT.kBlack,ROOT.kYellow,ROOT.kGreen,ROOT.kBlue-3,ROOT.kRed-4,ROOT.kOrange-3, ROOT.kOrange-6, ROOT.kCyan-6, ROOT.kGray]
 
-MakePlots = False
+MakePlots = True
 ZZcorr = False
 FFsys = False
 

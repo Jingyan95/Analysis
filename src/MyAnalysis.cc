@@ -667,7 +667,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
           }
       }
       if( (muPtSFRochester * Muon_pt[l] <20) || (abs(Muon_eta[l]) > 2.4) ) continue;
-      if(!Muon_looseId[l]||Muon_pfRelIso04_all[l] > 0.15) continue;//Loose Muon ID, this is used to enhance the presence of fake muons
+      if(!Muon_mediumId[l]||Muon_pfRelIso04_all[l] > 0.15) continue;//Loose Muon ID, this is used to enhance the presence of fake muons
       nLoose++;
       if (f==0){//f=0 -> MR
           if (nTight==1){//If there is already a tight lepton, then we probe the second lepton found in event.
@@ -797,7 +797,7 @@ for (int f=0;f<2;f++){//f=0:MR;f=1:VR+AR1+AR2;f=2:ZZ->4l CR
               }
           }
           if(muPtSFRochester * Muon_pt[l] <20 || abs(Muon_eta[l]) > 2.4) continue;
-          if(!Muon_looseId[l]||Muon_pfRelIso04_all[l] > 0.15) continue;
+          if(!Muon_mediumId[l]||Muon_pfRelIso04_all[l] > 0.15) continue;
           if (nTight==1){
               selectedLeptons->push_back(new lepton_candidate(muPtSFRochester * Muon_pt[l],Muon_eta[l],Muon_phi[l],Muon_charge[l],l,10));
               if (data == "mc" && year == "2016") sf_Mu_ID = sf_Mu_ID * scale_factor(&sf_Mu_ID_H, Muon_eta[l], Muon_pt[l],"");
