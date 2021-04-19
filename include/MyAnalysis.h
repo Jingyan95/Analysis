@@ -604,6 +604,7 @@ void MyAnalysis::Init(TTree *tree, TEntryList *list)
    fChain->SetBranchAddress("Muon_charge", &Muon_charge, &b_Muon_charge); 
 
    fChain->SetBranchAddress("Muon_mediumId", &Muon_mediumId, &b_Muon_mediumId);
+   fChain->SetBranchAddress("Muon_looseId", &Muon_looseId, &b_Muon_looseId);
    fChain->SetBranchAddress("Muon_mvaId", &Muon_mvaId, &b_Muon_mvaId);
    fChain->SetBranchAddress("Muon_miniIsoId", &Muon_miniIsoId, &b_Muon_miniIsoId);
    //if( isMC ) 

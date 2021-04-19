@@ -341,7 +341,7 @@ def stackPlotsError(hists, SignalHists,error, errorRatio, Fnames, ch = "channel"
 year=['2017']
 #LumiErr = [0.025, 0.023, 0.025, 0.018]
 LumiErr = [0.023]
-regions=["lll"]
+regions=["lll","lllOnZ"]
 channels=["eee", "emul", "mumumu"];
 variables=["lep1Pt","lep1Eta","lep1Phi","lep2Pt","lep2Eta","lep2Phi","lep3Pt","lep3Eta","lep3Phi",
            "LFVePt","LFVeEta","LFVePhi","LFVmuPt","LFVmuEta","LFVmuPhi","balPt","balEta","balPhi","Topmass",
