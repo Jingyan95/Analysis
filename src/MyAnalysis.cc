@@ -2306,13 +2306,15 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
   cout<<endl<<"from "<<ntr<<" events, "<<nAccept<<" events are accepted"<<endl;
 
   for (int i=0;i<(int)channels.size();++i){
-    for (int k=0;k<2;++k){
+    for (int k=0;k<(int)regions.size();++k){
       for (int l=0;l<(int)vars.size();++l){
         Hists[i][k][l]  ->Write("",TObject::kOverwrite);
         for (int n=0;n<(int)sys.size();++n){
             //Only write the first/second set of histograms to save space
+            if (k<2){
             HistsSysUp[i][k][l][n]->Write("",TObject::kOverwrite);
             HistsSysDown[i][k][l][n]->Write("",TObject::kOverwrite);
+            }
         }
       }
     }
@@ -2332,12 +2334,14 @@ void MyAnalysis::Loop(TString fname, TString data, TString dataset ,TString year
   }
 
   for (int i=0;i<(int)channels.size();++i){
-    for (int k=0;k<2;++k){
+    for (int k=0;k<(int)regions.size();++k){
       for (int l=0;l<(int)vars.size();++l){
           delete Hists[i][k][l];
-        for (int n=0;n<(int)sys.size();++n){
-	        delete HistsSysUp[i][k][l][n];
-	        delete HistsSysDown[i][k][l][n];
+          for (int n=0;n<(int)sys.size();++n){
+              if (k<2){
+	          delete HistsSysUp[i][k][l][n];
+	          delete HistsSysDown[i][k][l][n];
+              }
         }
       }
     }

@@ -172,14 +172,14 @@ def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", year=
     dummy.GetYaxis().SetLabelSize(0.04)
     dummy.GetYaxis().SetRangeUser(y_min,y_max)
     dummy.GetYaxis().SetNoExponent()
-    dummy.Draw("e")
+    dummy.Draw("ex0")
     hs.Draw("histSAME")
     for H in SignalHists:
         H.SetLineWidth(2)
         H.SetFillColor(0)
         H.SetLineStyle(9)
         H.Draw("histSAME")
-    dummy.Draw("eSAME")
+    dummy.Draw("ex0SAME")
     dummy.Draw("AXISSAMEY+")
     dummy.Draw("AXISSAMEX+")
 
@@ -269,7 +269,7 @@ def stackPlots(hists, SignalHists, Fnames, ch = "channel", reg = "region", year=
     dummy_ratio.GetYaxis().SetTitle('Data/Pred.')
     if not showData:
         dummy_ratio.Reset("ICE")
-    dummy_ratio.Draw()
+    dummy_ratio.Draw("ex0")
     dummy_ratio.Draw("AXISSAMEY+")
     dummy_ratio.Draw("AXISSAMEX+")
     canvas.Print(year + '/' + ch +'/'+reg+'/'+var + ".png")
@@ -358,7 +358,7 @@ variablesName=["Leading lepton p_{T} [GeV]","Leading lepton #eta","Leading lepto
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--v', dest='VERBOSE', default=True)
-parser.add_argument('--l', dest = 'LOCATION', default= '/afs/cern.ch/user/a/asparker/public/LFVTopCode_MyFork/TopLFV/hists/')
+parser.add_argument('--l', dest = 'LOCATION', default= '/eos/cms/store/user/jingyan/')
 
 ARGS = parser.parse_args()
 

@@ -355,7 +355,7 @@ sys = ["eleRecoSf", "eleIDSf", "muIdSf", "muIsoSf", "bcTagSF", "udsgTagSF","pu",
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--v', dest='VERBOSE', default=True)
-parser.add_argument('--l', dest = 'LOCATION', default= '/afs/cern.ch/user/a/asparker/public/LFVTopCode_MyFork/TopLFV/hists/')
+parser.add_argument('--l', dest = 'LOCATION', default= '/eos/cms/store/user/jingyan/')
 
 ARGS = parser.parse_args()
 
